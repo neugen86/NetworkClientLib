@@ -21,16 +21,16 @@ public:
 
     void setProxy(const QNetworkProxy& proxy);
 
-    WeakNetworkTask execute(const HttpRequest& request,
-                            TaskQueue::ExecType execType);
+    NetworkTaskRef execute(const HttpRequest& request,
+                           TaskQueue::ExecType execType);
 
-    WeakNetworkTask repeat(const HttpRequest& request,
-                           TaskQueue::ExecType execType,
-                           TaskQueue::SuspendType suspendType
-                           = TaskQueue::SuspendType::Suspend);
+    NetworkTaskRef repeat(const HttpRequest& request,
+                          TaskQueue::ExecType execType,
+                          TaskQueue::SuspendType suspendType
+                          = TaskQueue::SuspendType::Suspend);
 
 private:
-    SharedNetworkTask makeTask(const HttpRequest& request);
+    NetworkTaskPtr makeTask(const HttpRequest& request);
 
 private:
     QScopedPointer<QNetworkAccessManager> m_nam;

@@ -19,9 +19,9 @@ SOURCES += \
     Network/NetworkRequest.cpp \
     Network/NetworkTask.cpp \
     Network/NetworkTaskManager.cpp \
-    Task/SharedTaskStorage.cpp \
     Task/Task.cpp \
     Task/TaskQueue.cpp \
+    Task/TaskStorage.cpp \
     Test/Test.cpp \
     Test/TestClient.cpp \
     main.cpp
@@ -36,9 +36,9 @@ HEADERS += \
     Network/NetworkTask.h \
     Network/NetworkTaskManager.h \
     Network/NetworkTaskResult.h \
-    Task/SharedTaskStorage.h \
     Task/Task.h \
     Task/TaskDefines.h \
     Task/TaskQueue.h \
+    Task/TaskStorage.h \
     Test/Test.h \
     Test/TestClient.h

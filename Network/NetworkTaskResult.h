@@ -10,14 +10,14 @@
 template <typename T>
 class NetworkTaskResult
 {
-    WeakNetworkTask m_ref;
+    NetworkTaskRef m_ref;
 
 public:
-    explicit NetworkTaskResult(const WeakNetworkTask& ref)
+    explicit NetworkTaskResult(const NetworkTaskRef& ref)
         : m_ref(ref)
     {}
 
-    WeakNetworkTask ref() const { return m_ref; }
+    NetworkTaskRef ref() const { return m_ref; }
 
     void onResultReady(std::function<void(const T&)> callback)
     {

@@ -6,7 +6,8 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    (new Test())->run();
+    auto test = new Test();
+    test->run();
 
     return a.exec();
 }

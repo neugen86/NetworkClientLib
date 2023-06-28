@@ -13,6 +13,10 @@ class NetworkTask : public Task
     Q_PROPERTY(DataProgress* download READ download CONSTANT)
     Q_PROPERTY(DataDirection dataDirection READ dataDirection NOTIFY dataDirectionChanged)
 
+protected:
+    explicit NetworkTask(QObject* parent = nullptr);
+    ~NetworkTask();
+
 public:
     enum class DataDirection
     {
@@ -21,9 +25,6 @@ public:
         Out
     };
     Q_ENUM(DataDirection)
-
-    explicit NetworkTask(QObject* parent = nullptr);
-    ~NetworkTask();
 
     DataProgress* upload() const;
     DataProgress* download() const;

@@ -4,5 +4,5 @@
 
 class NetworkTask;
 
-using SharedNetworkTask = QSharedPointer<NetworkTask>;
-using WeakNetworkTask = QWeakPointer<NetworkTask>;
+using NetworkTaskPtr = QSharedPointer<NetworkTask>;
+using NetworkTaskRef = QWeakPointer<NetworkTask>;

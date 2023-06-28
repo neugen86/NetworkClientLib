@@ -21,20 +21,20 @@ void HttpRequestManager::setProxy(const QNetworkProxy& proxy)
     m_nam->setProxy(proxy);
 }
 
-WeakNetworkTask HttpRequestManager::execute(const HttpRequest& request,
-                                            TaskQueue::ExecType execType)
+NetworkTaskRef HttpRequestManager::execute(const HttpRequest& request,
+                                           TaskQueue::ExecType execType)
 {
     return NetworkTaskManager::execute(makeTask(request), execType);
 }
 
-WeakNetworkTask HttpRequestManager::repeat(const HttpRequest& request,
-                                           TaskQueue::ExecType execType,
-                                           TaskQueue::SuspendType suspendType)
+NetworkTaskRef HttpRequestManager::repeat(const HttpRequest& request,
+                                          TaskQueue::ExecType execType,
+                                          TaskQueue::SuspendType suspendType)
 {
     return NetworkTaskManager::repeat(makeTask(request), execType, suspendType);
 }
 
-SharedNetworkTask HttpRequestManager::makeTask(const HttpRequest& request)
+NetworkTaskPtr HttpRequestManager::makeTask(const HttpRequest& request)
 {
     return QSharedPointer<HttpRequestTask>(
         new HttpRequestTask(request, m_nam.data(), this),

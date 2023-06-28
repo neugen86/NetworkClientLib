@@ -4,4 +4,4 @@
 
 class Task;
 using TaskId = quint64;
-using SharedTask = QSharedPointer<Task>;
+using TaskPtr = QSharedPointer<Task>;

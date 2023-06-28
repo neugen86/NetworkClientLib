@@ -1,7 +1,6 @@
 #include "Test.h"
 
 #include <QDebug>
-#include <QCoreApplication>
 
 #include "Network/NetworkTask.h"
 
@@ -13,37 +12,37 @@ void Test::run()
 {
     for (int i = 0; i < 16; ++i)
     {
-        m_client.call();
+        m_client.callQt();
     }
 
     // status handling
+    NetworkTaskPtr pingTask = m_client.pingGoogle().lock();
     {
-        SharedNetworkTask task = m_client.ping().lock();
-
-        connect(task.data(), &Task::statusChanged, this, [task]()
+        connect(pingTask.data(), &Task::statusChanged, this, [pingTask]()
         {
-            qDebug() << task->name() << "[pingServer] status changed";
+            qDebug() << pingTask->name() << "[ping] status changed";
+        });
+
+        connect(pingTask.data(), &Task::completed, this, [pingTask]()
+        {
+            qDebug() << "[ping] finishing...";
         });
     }
 
     // result handling
     {
-        NetworkTaskResult<qint64> taskResult = m_client.call();
-        SharedNetworkTask task = taskResult.ref().lock();
+        NetworkTaskResult<qint64> taskResult = m_client.callQt();
+        NetworkTaskPtr task = taskResult.ref().lock();
 
         taskResult.onResultReady([task](qint64 value)
         {
-            qDebug() << task->name() << "[serverCall] data received:" << value;
+            qDebug() << task->name() << "[call] data received:" << value;
         });
 
-        connect(task.data(), &Task::completed, this, [task]()
+        connect(task.data(), &Task::completed, this, [task, pingTask]()
         {
-            qDebug() << task->name() << "[serverCall] the last task completed";
-
-            QMetaObject::invokeMethod(
-                qApp, [](){ qApp->exit(); },
-                Qt::QueuedConnection
-            );
+            qDebug() << "Cancelling ping task";
+            pingTask->cancel();
         });
     }
 }

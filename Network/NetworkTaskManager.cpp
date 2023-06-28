@@ -1,11 +1,11 @@
 #include "NetworkTaskManager.h"
 
-#include "Task/SharedTaskStorage.h"
+#include "Task/TaskStorage.h"
 #include "NetworkTask.h"
 
 NetworkTaskManager::NetworkTaskManager(QObject* parent)
     : QObject(parent)
-    , m_storage(new SharedTaskStorage)
+    , m_storage(new TaskStorage)
     , m_queue(new TaskQueue(this))
 {
     Q_ASSERT(m_queue);
@@ -26,8 +26,8 @@ TaskQueue& NetworkTaskManager::queue() const
     return *m_queue.data();
 }
 
-WeakNetworkTask NetworkTaskManager::execute(const SharedNetworkTask& task,
-                                            TaskQueue::ExecType execType)
+NetworkTaskRef NetworkTaskManager::execute(const NetworkTaskPtr& task,
+                                           TaskQueue::ExecType execType)
 {
     QMetaObject::invokeMethod(this, [=]()
     {
@@ -40,9 +40,9 @@ WeakNetworkTask NetworkTaskManager::execute(const SharedNetworkTask& task,
     return task.toWeakRef();
 }
 
-WeakNetworkTask NetworkTaskManager::repeat(const SharedNetworkTask& task,
-                                           TaskQueue::ExecType execType,
-                                           TaskQueue::SuspendType suspendType)
+NetworkTaskRef NetworkTaskManager::repeat(const NetworkTaskPtr& task,
+                                          TaskQueue::ExecType execType,
+                                          TaskQueue::SuspendType suspendType)
 {
     QMetaObject::invokeMethod(this, [=]()
     {

@@ -21,7 +21,7 @@ class TaskQueue : public QObject
     Q_PROPERTY(int runnngCount READ runningCount NOTIFY runningCountChanged)
 
     Q_PROPERTY(bool suspended READ isSuspended NOTIFY suspendedChanged)
-    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
+    Q_PROPERTY(bool empty READ isEmpty NOTIFY countChanged)
 
 public:
     enum class ExecType
@@ -78,8 +78,8 @@ signals:
     void batchSizeChanged(QPrivateSignal = {});
     void runningCountChanged(QPrivateSignal = {});
     void suspendedChanged(QPrivateSignal = {});
-    void emptyChanged(QPrivateSignal = {});
     void dequeued(TaskId id, QPrivateSignal = {});
+    void empty(QPrivateSignal = {});
 
 private:
     int m_capacity = -1;

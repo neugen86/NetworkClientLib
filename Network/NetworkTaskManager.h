@@ -6,29 +6,30 @@
 #include "Task/TaskQueue.h"
 #include "NetworkDefines.h"
 
-class SharedTaskStorage;
+class TaskStorage;
 
 class NetworkTaskManager : public QObject
 {
     Q_OBJECT
 
-public:
+protected:
     explicit NetworkTaskManager(QObject* parent = nullptr);
     ~NetworkTaskManager();
 
+public:
     TaskQueue& queue() const;
 
 protected:
-    WeakNetworkTask execute(const SharedNetworkTask& task,
-                            TaskQueue::ExecType execType);
+    NetworkTaskRef execute(const NetworkTaskPtr& task,
+                           TaskQueue::ExecType execType);
 
-    WeakNetworkTask repeat(const SharedNetworkTask& task,
-                           TaskQueue::ExecType execType,
-                           TaskQueue::SuspendType suspendType
-                           = TaskQueue::SuspendType::Suspend);
+    NetworkTaskRef repeat(const NetworkTaskPtr& task,
+                          TaskQueue::ExecType execType,
+                          TaskQueue::SuspendType suspendType
+                          = TaskQueue::SuspendType::Suspend);
 
 private:
-    QScopedPointer<SharedTaskStorage> m_storage;
+    QScopedPointer<TaskStorage> m_storage;
     QScopedPointer<TaskQueue> m_queue;
 
 };

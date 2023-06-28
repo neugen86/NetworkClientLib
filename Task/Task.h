@@ -8,12 +8,13 @@
 
 class TaskHandler
 {
-public:
+protected:
     explicit TaskHandler(Task& task)
         : m_task(task)
     {}
     virtual ~TaskHandler() = default;
 
+public:
     const Task& task() const;
 
     void execute();
@@ -37,16 +38,20 @@ class Task : public QObject
 {
     Q_OBJECT
 
+    friend class TaskQueue;
+    friend class TaskHandler;
+
     Q_PROPERTY(TaskId id READ id CONSTANT)
     Q_PROPERTY(QString name READ name CONSTANT)
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
     Q_PROPERTY(QVariant result READ result NOTIFY resultChanged)
     Q_PROPERTY(bool completed READ isCompleted NOTIFY completed)
 
-public:
-    friend class TaskQueue;
-    friend class TaskHandler;
+protected:
+    explicit Task(QObject* parent = nullptr);
+    ~Task();
 
+public:
     enum class Status
     {
         New,
@@ -60,9 +65,6 @@ public:
         Failed
     };
     Q_ENUM(Status)
-
-    explicit Task(QObject* parent = nullptr);
-    ~Task();
 
     TaskId id() const;
     QString name() const;

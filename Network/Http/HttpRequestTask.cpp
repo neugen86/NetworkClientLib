@@ -135,7 +135,9 @@ void HttpRequestTask::abortExecution()
 
 void HttpRequestTask::disconnectReply()
 {
-    Q_ASSERT(m_reply);
-    m_reply->disconnect(this);
-    m_reply->deleteLater();
+    if (m_reply)
+    {
+        m_reply->disconnect(this);
+        m_reply->deleteLater();
+    }
 }

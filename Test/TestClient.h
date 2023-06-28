@@ -12,8 +12,8 @@ class TestClient : public QObject
 public:
     explicit TestClient(QObject* parent = nullptr);
 
-    NetworkTaskResult<qint64> call();
-    WeakNetworkTask ping();
+    NetworkTaskResult<qint64> callQt();
+    NetworkTaskRef pingGoogle();
 
 private:
     HttpRequestManager m_manager;

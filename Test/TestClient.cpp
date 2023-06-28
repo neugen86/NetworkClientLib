@@ -2,19 +2,20 @@
 
 #include <QDebug>
 #include <QBuffer>
+#include <QCoreApplication>
 
 namespace
 {
-HttpRequest MakeRequest()
+HttpRequest MakeRequest(const QUrl& url)
 {
     HttpRequest request(HttpRequest::Get, new QBuffer);
-    request.request.setUrl(QUrl("google.com"));
+    request.request.setUrl(url);
     request.redirectLimit = 1;
 
     request.onSuccess = [](QNetworkReply* reply, NetworkOutputDevice device)
     {
         Q_UNUSED(reply);
-        qDebug() << "HttpRequest::onSuccess handled";
+        qDebug() << "HttpRequest::onSuccess";
 
         return device->size();
     };
@@ -22,7 +23,7 @@ HttpRequest MakeRequest()
     request.onFail = [](QNetworkReply* reply)
     {
         Q_UNUSED(reply);
-        qDebug() << "HttpRequest::onFail handled";
+        qDebug() << "HttpRequest::onFail";
     };
 
     return request;
@@ -34,22 +35,28 @@ TestClient::TestClient(QObject* parent)
     : QObject(parent)
 {
     m_manager.queue().setBatchSize(3);
+
+    connect(&m_manager.queue(), &TaskQueue::empty, this, []()
+    {
+        qDebug() << "TaskQueue is empty";
+        qApp->exit();
+    });
 }
 
-NetworkTaskResult<qint64> TestClient::call()
+NetworkTaskResult<qint64> TestClient::callQt()
 {
     return NetworkTaskResult<qint64>(
         m_manager.execute(
-            MakeRequest(),
+            MakeRequest(QUrl("qt.io")),
             TaskQueue::ExecType::Queued
         )
     );
 }
 
-WeakNetworkTask TestClient::ping()
+NetworkTaskRef TestClient::pingGoogle()
 {
     return m_manager.repeat(
-        MakeRequest(),
+        MakeRequest(QUrl("google.com")),
         TaskQueue::ExecType::Immediate
     );
 }

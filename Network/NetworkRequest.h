@@ -7,10 +7,11 @@ using NetworkOutputDevice = QPointer<QIODevice>;
 
 class NetworkRequest
 {
-public:
+protected:
     explicit NetworkRequest(NetworkOutputDevice output = {});
     ~NetworkRequest();
 
+public:
     NetworkOutputDevice output() const;
 
 public:

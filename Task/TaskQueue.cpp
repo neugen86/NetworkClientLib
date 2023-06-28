@@ -26,7 +26,15 @@ bool IsValid(TaskQPtr task)
 
 TaskQueue::TaskQueue(QObject* parent)
     : QObject(parent)
-{}
+{
+    connect(this, &TaskQueue::countChanged, this, [=]()
+    {
+        if (isEmpty())
+        {
+            emit empty();
+        }
+    });
+}
 
 TaskQueue::~TaskQueue()
 {
@@ -309,6 +317,7 @@ void TaskQueue::removeInvalidTasks()
             if (!IsValid(m_tasks[id]))
             {
                 m_tasks.remove(id);
+                emit countChanged();
                 emit dequeued(id);
 
                 result.insert(id);
@@ -341,10 +350,8 @@ void TaskQueue::removeInvalidTasks()
         {
             foreach (TaskId id, queuedToRemove)
             {
-                const bool res = m_queuedIds.removeAll(id);
-                Q_ASSERT(res);
+                m_queuedIds.removeAll(id);
             }
-            emit countChanged();
         }
     }
 
