@@ -2,10 +2,6 @@
 
 #include "Task.h"
 
-SharedTaskStorage::SharedTaskStorage(QObject* parent)
-    : QObject(parent)
-{}
-
 void SharedTaskStorage::add(const SharedTask& task)
 {
     Q_ASSERT(task);

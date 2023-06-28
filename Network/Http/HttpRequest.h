@@ -41,7 +41,6 @@ public:
     using FailCallback = std::function<void(QNetworkReply*)>;
 
     explicit HttpRequest(Method method, NetworkOutputDevice output = {});
-
     explicit HttpRequest(const QByteArray& method, NetworkOutputDevice output = {});
 
     QNetworkReply* execute(QNetworkAccessManager* nam) const;

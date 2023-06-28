@@ -21,7 +21,6 @@ bool IsValid(TaskQPtr task)
     }
     return false;
 };
-
 } // anonymous namespace
 
 

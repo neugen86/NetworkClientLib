@@ -1,17 +1,12 @@
 #pragma once
 
 #include <QMap>
-#include <QObject>
 
 #include "TaskDefines.h"
 
-class SharedTaskStorage : public QObject
+class SharedTaskStorage
 {
-    Q_OBJECT
-
 public:
-    explicit SharedTaskStorage(QObject* parent = nullptr);
-
     void add(const SharedTask& task);
     SharedTask get(TaskId id) const;
     bool remove(TaskId id);

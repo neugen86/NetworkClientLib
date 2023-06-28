@@ -5,16 +5,17 @@
 
 NetworkTaskManager::NetworkTaskManager(QObject* parent)
     : QObject(parent)
-    , m_storage(new SharedTaskStorage(this))
+    , m_storage(new SharedTaskStorage)
     , m_queue(new TaskQueue(this))
 {
     Q_ASSERT(m_queue);
     Q_ASSERT(m_storage);
 
-    connect(
-        m_queue.data(), &TaskQueue::dequeued,
-        m_storage.data(), &SharedTaskStorage::remove
-    );
+    connect(m_queue.data(), &TaskQueue::dequeued,
+            this, [=](TaskId id)
+    {
+        m_storage->remove(id);
+    });
 }
 
 NetworkTaskManager::~NetworkTaskManager()

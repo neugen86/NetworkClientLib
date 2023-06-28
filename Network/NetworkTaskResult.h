@@ -31,15 +31,7 @@ public:
         auto setValue = [=]()
         {
             const QVariant result = task->result();
-
-            if constexpr (std::is_same_v<T, QVariant>)
-            {
-                callback(result);
-            }
-            else
-            {
-                callback(result.value<T>());
-            }
+            callback(result.value<T>());
         };
 
         if (task->isCompleted())
