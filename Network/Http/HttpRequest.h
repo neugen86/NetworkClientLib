@@ -10,13 +10,13 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
-#include "Network/NetworkRequest.h"
+#include "Network/AbstractNetworkRequest.h"
 
 class QIODevice;
 class QHttpMultiPart;
 class QNetworkAccessManager;
 
-class HttpRequest : public NetworkRequest
+class HttpRequest : public AbstractNetworkRequest
 {
 public:
     enum Method

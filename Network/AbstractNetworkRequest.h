@@ -5,11 +5,13 @@
 
 using NetworkOutputDevice = QPointer<QIODevice>;
 
-class NetworkRequest
+class AbstractNetworkRequest
 {
 protected:
-    explicit NetworkRequest(NetworkOutputDevice output = {});
-    ~NetworkRequest();
+    explicit AbstractNetworkRequest(
+        NetworkOutputDevice output = {});
+
+    virtual ~AbstractNetworkRequest();
 
 public:
     NetworkOutputDevice output() const;

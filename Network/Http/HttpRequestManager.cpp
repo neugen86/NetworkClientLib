@@ -5,7 +5,7 @@
 #include "HttpRequestTask.h"
 
 HttpRequestManager::HttpRequestManager(QObject* parent)
-    : NetworkTaskManager(parent)
+    : AbstractNetworkTaskManager(parent)
     , m_nam(new QNetworkAccessManager(this))
 {
     Q_ASSERT(m_nam);
@@ -21,23 +21,10 @@ void HttpRequestManager::setProxy(const QNetworkProxy& proxy)
     m_nam->setProxy(proxy);
 }
 
-NetworkTaskRef HttpRequestManager::execute(const HttpRequest& request,
-                                           TaskQueue::ExecType execType)
-{
-    return NetworkTaskManager::execute(makeTask(request), execType);
-}
-
-NetworkTaskRef HttpRequestManager::repeat(const HttpRequest& request,
-                                          TaskQueue::ExecType execType,
-                                          TaskQueue::SuspendType suspendType)
-{
-    return NetworkTaskManager::repeat(makeTask(request), execType, suspendType);
-}
-
 NetworkTaskPtr HttpRequestManager::makeTask(const HttpRequest& request)
 {
     return QSharedPointer<HttpRequestTask>(
         new HttpRequestTask(request, m_nam.data(), this),
         &QObject::deleteLater
-    ).staticCast<NetworkTask>();
+    ).staticCast<AbstractNetworkTask>();
 }

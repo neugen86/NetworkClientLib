@@ -2,7 +2,6 @@
 
 #include <QObject>
 
-#include "Network/NetworkTaskResult.h"
 #include "Network/Http/HttpRequestManager.h"
 
 class TestClient : public QObject
@@ -12,8 +11,8 @@ class TestClient : public QObject
 public:
     explicit TestClient(QObject* parent = nullptr);
 
-    NetworkTaskResult<qint64> callQt();
-    NetworkTaskRef pingGoogle();
+    NetworkTaskResult<QVariant> callQt();
+    NetworkTaskResult<QVariant> pingGoogle();
 
 private:
     HttpRequestManager m_manager;

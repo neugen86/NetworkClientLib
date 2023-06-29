@@ -2,6 +2,6 @@
 
 #include <QSharedPointer>
 
-class Task;
+class AbstractTask;
 using TaskId = quint64;
-using TaskPtr = QSharedPointer<Task>;
+using TaskPtr = QSharedPointer<AbstractTask>;

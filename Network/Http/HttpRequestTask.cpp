@@ -6,7 +6,7 @@
 HttpRequestTask::HttpRequestTask(const HttpRequest& request,
                                  QNetworkAccessManager* nam,
                                  QObject* parent)
-    : NetworkTask(parent)
+    : AbstractNetworkTask(parent)
     , c_request(request)
     , m_nam(nam)
 {}
@@ -76,20 +76,24 @@ void HttpRequestTask::executeImpl()
             {
                 if (!c_request.output())
                 {
+                    qWarning() << name() << "Output device absent";
                     abortExecution(OutputDeviceOpenError);
                     return;
                 }
 
                 c_request.output()->write(m_reply->readAll());
+                const QString error = c_request.output()->errorString();
 
-                if (!c_request.output()->errorString().isEmpty())
+                if (!error.isEmpty())
                 {
+                    qWarning() << name() << "Output device error:" << error;
                     abortExecution(OutputDeviceWriteError);
                 }
             });
         }
         else
         {
+            qWarning() << name() << "Can't open output device";
             abortExecution(OutputDeviceOpenError);
         }
     }

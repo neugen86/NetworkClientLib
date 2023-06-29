@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "Network/NetworkTask.h"
+#include "Network/AbstractNetworkTask.h"
 
 Test::Test(QObject* parent)
     : QObject(parent)
@@ -16,14 +16,14 @@ void Test::run()
     }
 
     // status handling
-    NetworkTaskPtr pingTask = m_client.pingGoogle().lock();
+    auto ping = m_client.pingGoogle();
     {
-        connect(pingTask.data(), &Task::statusChanged, this, [pingTask]()
+        connect(ping.task().data(), &AbstractTask::statusChanged, this, [ping]()
         {
-            qDebug() << pingTask->name() << "[ping] status changed";
+            qDebug() << ping.task()->name() << "[ping] status changed";
         });
 
-        connect(pingTask.data(), &Task::completed, this, [pingTask]()
+        connect(ping.task().data(), &AbstractTask::completed, this, []()
         {
             qDebug() << "[ping] finishing...";
         });
@@ -31,18 +31,17 @@ void Test::run()
 
     // result handling
     {
-        NetworkTaskResult<qint64> taskResult = m_client.callQt();
-        NetworkTaskPtr task = taskResult.ref().lock();
+        NetworkTaskResult call = m_client.callQt();
 
-        taskResult.onResultReady([task](qint64 value)
+        call.onResultReady([call](const QVariant& value)
         {
-            qDebug() << task->name() << "[call] data received:" << value;
+            qDebug() << call.task()->name() << "[call] data received:" << value;
         });
 
-        connect(task.data(), &Task::completed, this, [task, pingTask]()
+        connect(call.task().data(), &AbstractTask::completed, this, [ping]()
         {
             qDebug() << "Cancelling ping task";
-            pingTask->cancel();
+            ping.task()->cancel();
         });
     }
 }

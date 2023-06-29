@@ -6,12 +6,13 @@
 #include <QNetworkProxy>
 
 #include "HttpRequest.h"
-#include "Network/NetworkTaskManager.h"
+#include "Network/AbstractNetworkTaskManager.h"
+#include "Network/NetworkTaskResult.h"
 
 class NetworkTaskQueue;
 class QNetworkAccessManager;
 
-class HttpRequestManager : public NetworkTaskManager
+class HttpRequestManager : public AbstractNetworkTaskManager
 {
     Q_OBJECT
 
@@ -21,13 +22,29 @@ public:
 
     void setProxy(const QNetworkProxy& proxy);
 
-    NetworkTaskRef execute(const HttpRequest& request,
-                           TaskQueue::ExecType execType);
+    template <typename T = QVariant>
+    NetworkTaskResult<T> execute(const HttpRequest& request,
+                                 TaskQueue::ExecType execType)
+    {
+        return NetworkTaskResult<T>(
+            AbstractNetworkTaskManager::execute(
+                makeTask(request), execType
+            )
+        );
+    }
 
-    NetworkTaskRef repeat(const HttpRequest& request,
-                          TaskQueue::ExecType execType,
-                          TaskQueue::SuspendType suspendType
-                          = TaskQueue::SuspendType::Suspend);
+    template <typename T = QVariant>
+    NetworkTaskResult<T> repeat(const HttpRequest& request,
+                                TaskQueue::ExecType execType,
+                                TaskQueue::SuspendType suspendType
+                                  = TaskQueue::SuspendType::Suspend)
+    {
+        return NetworkTaskResult<T>(
+            AbstractNetworkTaskManager::repeat(
+                makeTask(request), execType, suspendType
+            )
+        );
+    }
 
 private:
     NetworkTaskPtr makeTask(const HttpRequest& request);

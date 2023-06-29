@@ -1,6 +1,6 @@
 #include "TaskQueue.h"
 
-#include "Task.h"
+#include "AbstractTask.h"
 
 namespace
 {
@@ -10,9 +10,8 @@ bool IsValid(TaskQPtr task)
     {
         switch (task->status())
         {
-        case Task::Status::Dropped:
-        case Task::Status::Aborted:
-        case Task::Status::Cancelled:
+        case AbstractTask::Dropped:
+        case AbstractTask::Aborted:
             return false;
 
         default:
@@ -152,7 +151,7 @@ bool TaskQueue::resume()
     foreach (auto task, m_tasks)
     {
         if (m_runningIds.contains(task->id()) &&
-            task->status() == Task::Status::Suspended)
+            task->status() == AbstractTask::Suspended)
         {
             executeTask(task);
         }
@@ -193,7 +192,7 @@ void TaskQueue::reset()
 }
 
 
-bool TaskQueue::execute(Task* task, ExecType execType)
+bool TaskQueue::execute(AbstractTask* task, ExecType execType)
 {
     QMutexLocker lock(&m_mutex);
 
@@ -236,7 +235,9 @@ bool TaskQueue::execute(Task* task, ExecType execType)
     return true;
 }
 
-bool TaskQueue::repeat(Task* task, ExecType execType, SuspendType suspedType)
+bool TaskQueue::repeat(AbstractTask* task,
+                       ExecType execType,
+                       SuspendType suspedType)
 {
     QMutexLocker lock(&m_mutex);
 
@@ -257,12 +258,12 @@ bool TaskQueue::repeat(Task* task, ExecType execType, SuspendType suspedType)
     return false;
 }
 
-bool TaskQueue::add(Task* task)
+bool TaskQueue::add(AbstractTask* task)
 {
     QMutexLocker lock(&m_mutex);
 
     Q_ASSERT(task);
-    Q_ASSERT(task->status() == Task::Status::New);
+    Q_ASSERT(task->isCompleted());
 
     if (m_capacity > 0 && count() >= m_capacity)
     {
@@ -276,13 +277,13 @@ bool TaskQueue::add(Task* task)
         return false;
     }
 
-    connect(task, &Task::completed, this, [=]()
+    connect(task, &AbstractTask::completed, this, [=]()
     {
         TaskQueue::OnTaskCompleted(task->id());
     });
 
     m_tasks.insert(task->id(), task);
-    task->setStatus(Task::Status::Queued);
+    task->setStatus(AbstractTask::Queued);
 
     if (isSuspended())
     {
@@ -420,6 +421,10 @@ void TaskQueue::OnTaskCompleted(TaskId id)
         {
             executeTask(task);
             return;
+        }
+        else
+        {
+            m_repeatingIds.remove(id);
         }
     }
 

@@ -12,14 +12,14 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 SOURCES += \
+    Network/AbstractNetworkRequest.cpp \
+    Network/AbstractNetworkTask.cpp \
+    Network/AbstractNetworkTaskManager.cpp \
     Network/DataProgress.cpp \
     Network/Http/HttpRequest.cpp \
     Network/Http/HttpRequestManager.cpp \
     Network/Http/HttpRequestTask.cpp \
-    Network/NetworkRequest.cpp \
-    Network/NetworkTask.cpp \
-    Network/NetworkTaskManager.cpp \
-    Task/Task.cpp \
+    Task/AbstractTask.cpp \
     Task/TaskQueue.cpp \
     Task/TaskStorage.cpp \
     Test/Test.cpp \
@@ -27,16 +27,16 @@ SOURCES += \
     main.cpp
 
 HEADERS += \
+    Network/AbstractNetworkRequest.h \
+    Network/AbstractNetworkTask.h \
+    Network/AbstractNetworkTaskManager.h \
     Network/DataProgress.h \
     Network/Http/HttpRequest.h \
     Network/Http/HttpRequestManager.h \
     Network/Http/HttpRequestTask.h \
     Network/NetworkDefines.h \
-    Network/NetworkRequest.h \
-    Network/NetworkTask.h \
-    Network/NetworkTaskManager.h \
     Network/NetworkTaskResult.h \
-    Task/Task.h \
+    Task/AbstractTask.h \
     Task/TaskDefines.h \
     Task/TaskQueue.h \
     Task/TaskStorage.h \

@@ -1,9 +1,9 @@
-#include "NetworkTaskManager.h"
+#include "AbstractNetworkTaskManager.h"
 
 #include "Task/TaskStorage.h"
-#include "NetworkTask.h"
+#include "AbstractNetworkTask.h"
 
-NetworkTaskManager::NetworkTaskManager(QObject* parent)
+AbstractNetworkTaskManager::AbstractNetworkTaskManager(QObject* parent)
     : QObject(parent)
     , m_storage(new TaskStorage)
     , m_queue(new TaskQueue(this))
@@ -18,16 +18,17 @@ NetworkTaskManager::NetworkTaskManager(QObject* parent)
     });
 }
 
-NetworkTaskManager::~NetworkTaskManager()
+AbstractNetworkTaskManager::~AbstractNetworkTaskManager()
 {}
 
-TaskQueue& NetworkTaskManager::queue() const
+TaskQueue& AbstractNetworkTaskManager::queue() const
 {
     return *m_queue.data();
 }
 
-NetworkTaskRef NetworkTaskManager::execute(const NetworkTaskPtr& task,
-                                           TaskQueue::ExecType execType)
+NetworkTaskRef AbstractNetworkTaskManager::execute(
+        const NetworkTaskPtr& task,
+        TaskQueue::ExecType execType)
 {
     QMetaObject::invokeMethod(this, [=]()
     {
@@ -40,9 +41,10 @@ NetworkTaskRef NetworkTaskManager::execute(const NetworkTaskPtr& task,
     return task.toWeakRef();
 }
 
-NetworkTaskRef NetworkTaskManager::repeat(const NetworkTaskPtr& task,
-                                          TaskQueue::ExecType execType,
-                                          TaskQueue::SuspendType suspendType)
+NetworkTaskRef AbstractNetworkTaskManager::repeat(
+        const NetworkTaskPtr& task,
+        TaskQueue::ExecType execType,
+        TaskQueue::SuspendType suspendType)
 {
     QMetaObject::invokeMethod(this, [=]()
     {

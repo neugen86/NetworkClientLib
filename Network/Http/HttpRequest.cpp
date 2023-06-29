@@ -7,13 +7,13 @@
 
 HttpRequest::HttpRequest(Method method,
                          NetworkOutputDevice output)
-    : NetworkRequest(output)
+    : AbstractNetworkRequest(output)
     , c_method(method)
 {}
 
 HttpRequest::HttpRequest(const QByteArray& method,
                          NetworkOutputDevice output)
-    : NetworkRequest(output)
+    : AbstractNetworkRequest(output)
     , c_method(Method::Head)
     , c_customMethod(method)
 {}

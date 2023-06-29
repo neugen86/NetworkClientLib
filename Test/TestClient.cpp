@@ -10,7 +10,7 @@ HttpRequest MakeRequest(const QUrl& url)
 {
     HttpRequest request(HttpRequest::Get, new QBuffer);
     request.request.setUrl(url);
-    request.redirectLimit = 0;
+    request.redirectLimit = 1;
 
     request.onSuccess = [](QNetworkReply* reply, NetworkOutputDevice device)
     {
@@ -43,17 +43,15 @@ TestClient::TestClient(QObject* parent)
     });
 }
 
-NetworkTaskResult<qint64> TestClient::callQt()
+NetworkTaskResult<QVariant> TestClient::callQt()
 {
-    return NetworkTaskResult<qint64>(
-        m_manager.execute(
-            MakeRequest(QUrl("qt.io")),
-            TaskQueue::ExecType::Queued
-        )
+    return m_manager.execute<>(
+        MakeRequest(QUrl("qt.io")),
+        TaskQueue::ExecType::Queued
     );
 }
 
-NetworkTaskRef TestClient::pingGoogle()
+NetworkTaskResult<QVariant> TestClient::pingGoogle()
 {
     return m_manager.repeat(
         MakeRequest(QUrl("google.com")),

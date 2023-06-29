@@ -1,6 +1,6 @@
 #include "TaskStorage.h"
 
-#include "Task.h"
+#include "AbstractTask.h"
 
 void TaskStorage::add(const TaskPtr& task)
 {

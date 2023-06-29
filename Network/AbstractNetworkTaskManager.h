@@ -8,13 +8,13 @@
 
 class TaskStorage;
 
-class NetworkTaskManager : public QObject
+class AbstractNetworkTaskManager : public QObject
 {
     Q_OBJECT
 
 protected:
-    explicit NetworkTaskManager(QObject* parent = nullptr);
-    ~NetworkTaskManager();
+    explicit AbstractNetworkTaskManager(QObject* parent = nullptr);
+    ~AbstractNetworkTaskManager();
 
 public:
     TaskQueue& queue() const;

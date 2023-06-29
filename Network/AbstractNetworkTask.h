@@ -2,10 +2,10 @@
 
 #include <QScopedPointer>
 
-#include "Task/Task.h"
+#include "Task/AbstractTask.h"
 #include "DataProgress.h"
 
-class NetworkTask : public Task
+class AbstractNetworkTask : public AbstractTask
 {
     Q_OBJECT
 
@@ -14,8 +14,8 @@ class NetworkTask : public Task
     Q_PROPERTY(DataDirection dataDirection READ dataDirection NOTIFY dataDirectionChanged)
 
 protected:
-    explicit NetworkTask(QObject* parent = nullptr);
-    ~NetworkTask();
+    explicit AbstractNetworkTask(QObject* parent = nullptr);
+    ~AbstractNetworkTask();
 
 public:
     enum class DataDirection

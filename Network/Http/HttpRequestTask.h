@@ -4,11 +4,11 @@
 #include <QPointer>
 
 #include "HttpRequest.h"
-#include "Network/NetworkTask.h"
+#include "Network/AbstractNetworkTask.h"
 
 class QNetworkAccessManager;
 
-class HttpRequestTask : public NetworkTask
+class HttpRequestTask : public AbstractNetworkTask
 {
     Q_OBJECT
 

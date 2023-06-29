@@ -4,10 +4,10 @@
 
 #include <QObject>
 
-#include "NetworkTask.h"
 #include "NetworkDefines.h"
+#include "AbstractNetworkTask.h"
 
-template <typename T>
+template <typename T = QVariant>
 class NetworkTaskResult
 {
     NetworkTaskRef m_ref;
@@ -17,11 +17,11 @@ public:
         : m_ref(ref)
     {}
 
-    NetworkTaskRef ref() const { return m_ref; }
+    NetworkTaskPtr task() const { return m_ref.lock(); }
 
     void onResultReady(std::function<void(const T&)> callback)
     {
-        const auto task = ref().lock();
+        const auto task = this->task();
 
         if (!task)
         {
@@ -41,7 +41,7 @@ public:
         }
 
         auto ctx = new QObject;
-        ctx->connect(task.data(), &Task::resultChanged, [=]
+        ctx->connect(task.data(), &AbstractTask::resultChanged, [=]
         {
             ctx->deleteLater();
             setValue();
