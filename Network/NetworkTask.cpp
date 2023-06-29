@@ -8,10 +8,10 @@ NetworkTask::NetworkTask(QObject *parent)
     Q_ASSERT(m_upload);
     Q_ASSERT(m_download);
 
-    connect(
-        this, &Task::failed,
-        this, &NetworkTask::abortExecution
-    );
+    connect(this, &Task::rejected, this, [=]()
+    {
+        abortExecution(RejectedError);
+    });
 }
 
 NetworkTask::~NetworkTask()

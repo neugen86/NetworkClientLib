@@ -69,8 +69,8 @@ public:
 
     enum ErrorCode
     {
-        UnknownError = -1,
-        NoError = 0
+        NoError = 0,
+        RejectedError = 1000,
     };
     Q_ENUM(ErrorCode)
 
@@ -96,7 +96,7 @@ signals:
     void errorCodeChanged(QPrivateSignal = {});
 
     void started(QPrivateSignal = {});
-    void cancelled(QPrivateSignal = {});
+    void rejected(QPrivateSignal = {});
     void succeeded(QPrivateSignal = {});
     void failed(QPrivateSignal = {});
     void completed(QPrivateSignal = {});

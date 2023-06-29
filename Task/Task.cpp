@@ -125,7 +125,9 @@ void Task::setStatus(Status value)
         break;
 
     case Status::Cancelled:
-        emit cancelled();
+    case Status::Dropped:
+    case Status::Aborted:
+        emit rejected();
         m_completed = true;
         break;
 
@@ -134,8 +136,6 @@ void Task::setStatus(Status value)
         m_completed = true;
         break;
 
-    case Status::Dropped:
-    case Status::Aborted:
     case Status::Failed:
         emit failed();
         m_completed = true;

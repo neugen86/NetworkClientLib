@@ -10,7 +10,7 @@ HttpRequest MakeRequest(const QUrl& url)
 {
     HttpRequest request(HttpRequest::Get, new QBuffer);
     request.request.setUrl(url);
-    request.redirectLimit = 1;
+    request.redirectLimit = 0;
 
     request.onSuccess = [](QNetworkReply* reply, NetworkOutputDevice device)
     {

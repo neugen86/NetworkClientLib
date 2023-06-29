@@ -17,17 +17,25 @@ public:
                              QNetworkAccessManager* nam,
                              QObject* parent = nullptr);
 
+    enum ErrorCode
+    {
+        RedirectLimit = 2000,
+        OutputDeviceOpenError,
+        OutputDeviceWriteError,
+    };
+    Q_ENUM(ErrorCode);
+
 private: // TaskHandler
     void executeImpl() override;
 
 private: // NetworkTask
-    void abortExecution() override;
+    void abortExecution(int errorCode) override;
 
 private:
     void disconnectReply();
 
 private:
-    int m_redirectionsCount = 0;
+    int m_redirectCount = 0;
     const HttpRequest c_request;
     QPointer<QNetworkReply> m_reply;
     QPointer<QNetworkAccessManager> m_nam;
