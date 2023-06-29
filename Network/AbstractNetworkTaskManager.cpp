@@ -30,13 +30,10 @@ NetworkTaskRef AbstractNetworkTaskManager::execute(
         const NetworkTaskPtr& task,
         TaskQueue::ExecType execType)
 {
-    QMetaObject::invokeMethod(this, [=]()
+    if (m_queue->execute(task.data(), execType))
     {
-        if (m_queue->execute(task.data(), execType))
-        {
-            m_storage->add(task);
-        }
-    }, Qt::QueuedConnection);
+        m_storage->add(task);
+    }
 
     return task.toWeakRef();
 }
@@ -46,13 +43,10 @@ NetworkTaskRef AbstractNetworkTaskManager::repeat(
         TaskQueue::ExecType execType,
         TaskQueue::SuspendType suspendType)
 {
-    QMetaObject::invokeMethod(this, [=]()
+    if (m_queue->repeat(task.data(), execType, suspendType))
     {
-        if (m_queue->repeat(task.data(), execType, suspendType))
-        {
-            m_storage->add(task);
-        }
-    }, Qt::QueuedConnection);
+        m_storage->add(task);
+    }
 
     return task.toWeakRef();
 }

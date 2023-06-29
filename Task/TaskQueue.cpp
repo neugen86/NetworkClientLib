@@ -194,68 +194,37 @@ void TaskQueue::reset()
 
 bool TaskQueue::execute(AbstractTask* task, ExecType execType)
 {
-    QMutexLocker lock(&m_mutex);
-
-    if (!add(task))
+    if (add(task))
     {
-        return false;
+        processAdded(task->id(), execType);
+        return true;
     }
-
-    const TaskId id = task->id();
-
-    switch (execType)
-    {
-    case ExecType::Immediate:
-    {
-        m_immediateIds.insert(id);
-
-        m_runningIds.insert(id);
-        emit runningCountChanged();
-
-        if (!isSuspended())
-        {
-            executeTask(task);
-        }
-
-        break;
-    }
-
-    case ExecType::Queued:
-    {
-        m_queuedIds.append(id);
-        executeNextQueuedBatch();
-        break;
-    }
-
-    default:
-        Q_ASSERT(false);
-        return false;
-    }
-
-    return true;
+    return false;
 }
 
 bool TaskQueue::repeat(AbstractTask* task,
                        ExecType execType,
                        SuspendType suspedType)
 {
-    QMutexLocker lock(&m_mutex);
-
-    if (execute(task, execType))
+    if (!add(task))
     {
-        const TaskId id = task->id();
+        return false;
+    }
 
-        m_repeatingIds.insert(id);
+    const TaskId id = task->id();
+    {
+        QMutexLocker lock(&m_mutex);
 
         if (suspedType == SuspendType::Sustain)
         {
             m_sustainingIds.insert(id);
         }
-
-        return true;
+        m_repeatingIds.insert(id);
     }
 
-    return false;
+    processAdded(id, execType);
+
+    return true;
 }
 
 bool TaskQueue::add(AbstractTask* task)
@@ -293,6 +262,43 @@ bool TaskQueue::add(AbstractTask* task)
     emit countChanged();
 
     return true;
+}
+
+void TaskQueue::processAdded(TaskId id, ExecType execType)
+{
+    QMetaObject::invokeMethod(this, [=]()
+    {
+        QMutexLocker lock(&m_mutex);
+
+        switch (execType)
+        {
+        case ExecType::Immediate:
+        {
+            m_immediateIds.insert(id);
+
+            m_runningIds.insert(id);
+            emit runningCountChanged();
+
+            if (!isSuspended())
+            {
+                executeTask(m_tasks[id]);
+            }
+
+            break;
+        }
+
+        case ExecType::Queued:
+        {
+            m_queuedIds.append(id);
+            executeNextQueuedBatch();
+            break;
+        }
+
+        default:
+            Q_ASSERT(false);
+        }
+
+    }, Qt::QueuedConnection);
 }
 
 void TaskQueue::removeTask(TaskId id)

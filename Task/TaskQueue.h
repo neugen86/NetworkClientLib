@@ -66,6 +66,7 @@ public:
 
 private:
     bool add(AbstractTask* task);
+    void processAdded(TaskId id, ExecType execType);
     void removeTask(TaskId id);
     void removeInvalidTasks();
     void executeNextQueuedBatch();
