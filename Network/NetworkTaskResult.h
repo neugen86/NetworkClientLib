@@ -3,6 +3,7 @@
 #include <functional>
 
 #include <QObject>
+#include <QPointer>
 
 #include "NetworkDefines.h"
 #include "AbstractNetworkTask.h"
@@ -40,10 +41,14 @@ public:
             return;
         }
 
-        auto ctx = new QObject;
+        QPointer<QObject> ctx(new QObject);
         ctx->connect(task.data(), &AbstractTask::resultChanged, [=]
         {
-            ctx->deleteLater();
+            if (ctx)
+            {
+                ctx->deleteLater();
+            }
+
             setValue();
         });
     }
