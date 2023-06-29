@@ -87,7 +87,7 @@ void HttpRequestTask::executeImpl()
                 if (!error.isEmpty())
                 {
                     qWarning() << name() << "Output device error:" << error;
-//                    abortExecution(OutputDeviceWriteError);
+                    abortExecution(OutputDeviceWriteError);
                 }
             });
         }

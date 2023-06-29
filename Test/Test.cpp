@@ -15,7 +15,7 @@ void Test::run()
         m_client.callMicrosoft();
     }
 
-    auto ping = m_client.pingGoogle();
+    NetworkTaskResult ping = m_client.pingGoogle();
     NetworkTaskResult call = m_client.callMicrosoft();
 
     // ping processing
