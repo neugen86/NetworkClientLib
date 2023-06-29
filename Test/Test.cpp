@@ -12,36 +12,41 @@ void Test::run()
 {
     for (int i = 0; i < 16; ++i)
     {
-        m_client.callQt();
+        m_client.callMicrosoft();
     }
 
-    // status handling
     auto ping = m_client.pingGoogle();
+    NetworkTaskResult call = m_client.callMicrosoft();
+
+    // ping processing
     {
         connect(ping.task().data(), &AbstractTask::statusChanged, this, [ping]()
         {
-            qDebug() << ping.task()->name() << "[ping] status changed";
+            qDebug() << ping.task()->name() << "[ping] in progress";
         });
 
         connect(ping.task().data(), &AbstractTask::completed, this, []()
         {
-            qDebug() << "[ping] finishing...";
+            qDebug() << "[ping] finished";
+        });
+
+        ping.onResultReady([](bool result)
+        {
+            qDebug() << "[ping]" << (result ? "ok" : "failed");
         });
     }
 
-    // result handling
+    // call processing
     {
-        NetworkTaskResult call = m_client.callQt();
-
-        call.onResultReady([call](const QVariant& value)
-        {
-            qDebug() << call.task()->name() << "[call] data received:" << value;
-        });
-
         connect(call.task().data(), &AbstractTask::completed, this, [ping]()
         {
             qDebug() << "Cancelling ping task";
             ping.task()->cancel();
+        });
+
+        call.onResultReady([call](const QString& data)
+        {
+            qDebug() << call.task()->name() << "[call]:" << data;
         });
     }
 }

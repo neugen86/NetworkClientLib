@@ -4,33 +4,6 @@
 #include <QBuffer>
 #include <QCoreApplication>
 
-namespace
-{
-HttpRequest MakeRequest(const QUrl& url)
-{
-    HttpRequest request(HttpRequest::Get, new QBuffer);
-    request.request.setUrl(url);
-    request.redirectLimit = 1;
-
-    request.onSuccess = [](QNetworkReply* reply, NetworkOutputDevice device)
-    {
-        Q_UNUSED(reply);
-        qDebug() << "HttpRequest::onSuccess";
-
-        return device->size();
-    };
-
-    request.onFail = [](QNetworkReply* reply)
-    {
-        Q_UNUSED(reply);
-        qDebug() << "HttpRequest::onFail";
-    };
-
-    return request;
-}
-} // anonymous namespace
-
-
 TestClient::TestClient(QObject* parent)
     : QObject(parent)
 {
@@ -43,18 +16,48 @@ TestClient::TestClient(QObject* parent)
     });
 }
 
-NetworkTaskResult<QVariant> TestClient::callQt()
+NetworkTaskResult<QString> TestClient::callMicrosoft()
 {
-    return m_manager.execute<>(
-        MakeRequest(QUrl("qt.io")),
-        TaskQueue::ExecType::Queued
+    HttpRequest request(HttpRequest::Get, new QBuffer);
+    request.request.setUrl(QUrl("microsoft.com"));
+    request.redirectLimit = 1;
+
+    request.onSuccess = [](QNetworkReply* reply, NetworkOutputDevice device)
+    {
+        Q_UNUSED(reply);
+        return QString("%1 bytes from microsoft received").arg(device->size());
+    };
+
+    request.onFail = [](QNetworkReply* reply)
+    {
+        Q_UNUSED(reply);
+        qDebug() << "callMicrosoft failed";
+    };
+
+    return m_manager.execute<QString>(
+        request, TaskQueue::ExecType::Queued
     );
 }
 
-NetworkTaskResult<QVariant> TestClient::pingGoogle()
+NetworkTaskResult<bool> TestClient::pingGoogle()
 {
-    return m_manager.repeat(
-        MakeRequest(QUrl("google.com")),
-        TaskQueue::ExecType::Immediate
+    HttpRequest request(HttpRequest::Get, new QBuffer);
+    request.request.setUrl(QUrl("google.com"));
+    request.redirectLimit = 1;
+
+    request.onSuccess = [](QNetworkReply* reply, NetworkOutputDevice device)
+    {
+        Q_UNUSED(reply);
+        return device->size() > 0;
+    };
+
+    request.onFail = [](QNetworkReply* reply)
+    {
+        Q_UNUSED(reply);
+        qDebug() << "pingGoogle failed";
+    };
+
+    return m_manager.repeat<bool>(
+        request, TaskQueue::ExecType::Immediate
     );
 }
