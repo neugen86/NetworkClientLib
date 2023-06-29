@@ -68,6 +68,11 @@ QVariant Task::result() const
     return m_result;
 }
 
+int Task::errorCode() const
+{
+    return m_errorCode;
+}
+
 bool Task::isCompleted() const
 {
     return m_completed;
@@ -88,9 +93,12 @@ void Task::setResult(const QVariant& result)
     emit resultChanged();
 }
 
-void Task::setFailed()
+void Task::setFailed(int errorCode)
 {
     setStatus(Status::Failed);
+
+    m_errorCode = errorCode;
+    emit errorCodeChanged();
 }
 
 void Task::setStatus(Status value)
@@ -113,6 +121,7 @@ void Task::setStatus(Status value)
     case Status::Queued:
         emit started();
         m_completed = false;
+        m_errorCode = NoError;
         break;
 
     case Status::Cancelled:

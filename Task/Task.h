@@ -45,6 +45,7 @@ class Task : public QObject
     Q_PROPERTY(QString name READ name CONSTANT)
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
     Q_PROPERTY(QVariant result READ result NOTIFY resultChanged)
+    Q_PROPERTY(int errorCode READ errorCode NOTIFY errorCodeChanged)
     Q_PROPERTY(bool completed READ isCompleted NOTIFY completed)
 
 protected:
@@ -66,17 +67,25 @@ public:
     };
     Q_ENUM(Status)
 
+    enum ErrorCode
+    {
+        UnknownError = -1,
+        NoError = 0
+    };
+    Q_ENUM(ErrorCode)
+
     TaskId id() const;
     QString name() const;
     Status status() const;
     QVariant result() const;
+    int errorCode() const;
     bool isCompleted() const;
 
     Q_INVOKABLE void cancel();
 
 protected:
     void setResult(const QVariant& value);
-    void setFailed();
+    void setFailed(int errorCode);
 
 private:
     void setStatus(Status value);
@@ -84,6 +93,7 @@ private:
 signals:
     void statusChanged(QPrivateSignal = {});
     void resultChanged(QPrivateSignal = {});
+    void errorCodeChanged(QPrivateSignal = {});
 
     void started(QPrivateSignal = {});
     void cancelled(QPrivateSignal = {});
@@ -95,6 +105,7 @@ private:
     const TaskId c_id;
     bool m_completed = false;
     Status m_status = Status::New;
+    int m_errorCode = NoError;
     QVariant m_result;
 
 };

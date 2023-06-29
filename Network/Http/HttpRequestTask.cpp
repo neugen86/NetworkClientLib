@@ -89,12 +89,15 @@ void HttpRequestTask::executeImpl()
     {
         disconnectReply();
 
-        qInfo() << name() << "Execution finished";
+        const int error = m_reply->error();
 
         const int code = m_reply->attribute(
             QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-        if (c_request.acceptCodes.contains(code))
+        qInfo() << name() << "Execution finished, code:" << code << "error:" << error;
+
+        if (error == QNetworkReply::NoError &&
+            c_request.acceptCodes.contains(code))
         {
             QVariant result;
             if (c_request.onSuccess)
@@ -116,9 +119,13 @@ void HttpRequestTask::abortExecution()
 {
     disconnectReply();
 
+    int error = Task::UnknownError;
+
     if (m_reply)
     {
-        qInfo() << name() << "Execution aborted";
+        error = m_reply->error();
+
+        qInfo() << name() << "Execution aborted, error:" << error;
 
         if (c_request.onFail)
         {
@@ -129,7 +136,7 @@ void HttpRequestTask::abortExecution()
         m_reply = nullptr;
     }
 
-    setFailed();
+    setFailed(error);
 }
 
 
