@@ -31,9 +31,6 @@ NetworkRequest::NetworkRequest(IODevicePtr output)
     }
 }
 
-NetworkRequest::~NetworkRequest()
-{}
-
 QIODevice* NetworkRequest::output() const
 {
     return m_output.data();

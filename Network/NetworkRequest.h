@@ -9,7 +9,7 @@ class NetworkRequest
 {
 protected:
     explicit NetworkRequest(IODevicePtr output = {});
-    virtual ~NetworkRequest();
+    virtual ~NetworkRequest() = default;
 
 public:
     static const int DefaultTimeout = 3000;

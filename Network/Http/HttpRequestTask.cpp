@@ -40,12 +40,12 @@ void HttpRequestTask::executeImpl()
 
     connect(m_reply, &QNetworkReply::redirected, this, [=](const QUrl& url)
     {
-        qInfo() << name() << "Trying to redirect to" << url;
+        qInfo() << name() << "Trying to redirect to" << url.toString();
 
         if (c_request.redirectLimit < 0 ||
             m_redirectCount++ < c_request.redirectLimit)
         {
-            qInfo() << name() << "Redirect to" << url << "allowed";
+            qInfo() << name() << "Redirect to" << url.toString() << "allowed";
 
             emit m_reply->redirectAllowed();
         }
