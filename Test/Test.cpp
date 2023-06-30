@@ -93,7 +93,7 @@ void Test::test_2()
             });
         }
 
-        // call processing
+        // request processing
         {
             request.onResultReady([request](const QString& data)
             {

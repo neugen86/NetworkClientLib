@@ -6,30 +6,28 @@ TestClient::TestClient(QObject* parent)
     : QObject(parent)
 {
     connect(&m_manager.queue(), &TaskQueue::empty,
-            this, &TestClient::finished);
+            &m_manager, &NetworkTaskManager::stop);
 
     connect(&m_manager, &NetworkTaskManager::statusChanged,
             this, [this]()
     {
         const auto status = m_manager.status();
 
-        const bool isReady = (status == NetworkTaskManager::Ready);
-        if (isReady)
+        m_ready = (status == NetworkTaskManager::Ready);
+        if (m_ready)
         {
-            qDebug() << "[client] ready";
+            qDebug() << "=== [client] ready";
+            emit readyChanged();
         }
-
-        m_ready = isReady;
-        emit readyChanged();
 
         if (status == NetworkTaskManager::Disconnected)
         {
-            qDebug() << "[client] finished";
+            qDebug() << "=== [client] finished";
             emit finished();
         }
     });
 
-//    m_manager.queue().setBatchSize(3);
+    m_manager.queue().setBatchSize(3);
     m_manager.start();
 }
 

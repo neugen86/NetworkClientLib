@@ -186,15 +186,20 @@ void TaskQueue::clear()
         }
     }
 
+    const bool wasEmpty = m_tasks.isEmpty();
     m_tasks.clear();
+
     m_queuedIds.clear();
     m_runningIds.clear();
     m_immediateIds.clear();
     m_repeatingIds.clear();
     m_sustainingIds.clear();
 
-    emit runningCountChanged();
-    emit countChanged();
+    if (!wasEmpty)
+    {
+        emit runningCountChanged();
+        emit countChanged();
+    }
 }
 
 
