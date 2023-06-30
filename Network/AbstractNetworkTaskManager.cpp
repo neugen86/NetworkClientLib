@@ -5,8 +5,8 @@
 
 AbstractNetworkTaskManager::AbstractNetworkTaskManager(QObject* parent)
     : QObject(parent)
-    , m_storage(new TaskStorage)
     , m_queue(new TaskQueue(this))
+    , m_storage(new TaskStorage)
 {
     Q_ASSERT(m_queue);
     Q_ASSERT(m_storage);
@@ -19,7 +19,38 @@ AbstractNetworkTaskManager::AbstractNetworkTaskManager(QObject* parent)
 }
 
 AbstractNetworkTaskManager::~AbstractNetworkTaskManager()
-{}
+{
+    stop();
+}
+
+bool AbstractNetworkTaskManager::start()
+{
+    m_status = Connecting;
+
+    QMetaObject::invokeMethod(this, [this]()
+    {
+        m_status = Ready;
+        emit statusChanged();
+    },
+    Qt::QueuedConnection);
+
+    return true;
+}
+
+void AbstractNetworkTaskManager::stop()
+{
+    m_queue->clear();
+    m_storage->clear();
+
+    m_status = Disconnected;
+    emit statusChanged();
+}
+
+AbstractNetworkTaskManager::Status
+AbstractNetworkTaskManager::status() const
+{
+    return m_status;
+}
 
 TaskQueue& AbstractNetworkTaskManager::queue() const
 {

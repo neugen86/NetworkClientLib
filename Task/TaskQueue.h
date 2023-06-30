@@ -62,7 +62,7 @@ public:
 
     Q_INVOKABLE bool suspend();
     Q_INVOKABLE bool resume();
-    Q_INVOKABLE void reset();
+    Q_INVOKABLE void clear();
 
 private:
     bool add(AbstractTask* task);

@@ -66,9 +66,6 @@ QNetworkReply* HttpRequest::execute(QNetworkAccessManager* nam) const
         case Method::Delete:
             reply = nam->deleteResource(request);
             break;
-
-        default:
-            Q_ASSERT(false);
         }
     }
 

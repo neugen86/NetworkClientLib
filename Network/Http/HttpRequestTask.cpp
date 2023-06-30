@@ -76,19 +76,20 @@ void HttpRequestTask::executeImpl()
             {
                 if (!c_request.output())
                 {
-                    qWarning() << name() << "Output device absent";
+                    qWarning() << name() << "Output device is null";
                     abortExecution(OutputDeviceOpenError);
                     return;
                 }
 
-                c_request.output()->write(m_reply->readAll());
-                const QString error = c_request.output()->errorString();
+//                if (const QString error = c_request.output()->errorString();
+//                    !error.isEmpty())
+//                {
+//                    qWarning() << name() << "Output device error:" << error;
+//                    abortExecution(OutputDeviceWriteError);
+//                    return;
+//                }
 
-                if (!error.isEmpty())
-                {
-                    qWarning() << name() << "Output device error:" << error;
-                    abortExecution(OutputDeviceWriteError);
-                }
+                c_request.output()->write(m_reply->readAll());
             });
         }
         else

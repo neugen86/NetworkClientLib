@@ -41,14 +41,13 @@ public:
             return;
         }
 
-        QPointer<QObject> ctx(new QObject);
+        QPointer ctx(new QObject);
         ctx->connect(task.data(), &AbstractTask::resultChanged, [=]
         {
             if (ctx)
             {
                 ctx->deleteLater();
             }
-
             setValue();
         });
     }

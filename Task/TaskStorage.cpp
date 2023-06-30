@@ -17,3 +17,8 @@ bool TaskStorage::remove(TaskId id)
 {
     return m_tasks.remove(id) > 0;
 }
+
+void TaskStorage::clear()
+{
+    m_tasks.clear();
+}

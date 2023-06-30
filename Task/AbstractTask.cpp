@@ -113,14 +113,37 @@ void AbstractTask::setStatus(Status value)
     m_status = value;
     emit statusChanged();
 
+    QMetaObject::invokeMethod(
+        this, &AbstractTask::updateCompleted,
+        Qt::QueuedConnection
+    );
+}
+
+void AbstractTask::updateCompleted()
+{
     const bool wasCompleted = m_completed;
 
     switch (m_status)
     {
+    case New:
     case Queued:
-        emit started();
+    case Running:
+    case Suspended:
         m_completed = false;
         m_errorCode = NoError;
+
+        switch (m_status)
+        {
+        case Running:
+            emit started();
+            break;
+
+        case Suspended:
+            emit suspended();
+
+        default: {}
+        }
+
         break;
 
     case Cancelled:
@@ -139,8 +162,6 @@ void AbstractTask::setStatus(Status value)
         emit failed();
         m_completed = true;
         break;
-
-    default: {}
     }
 
     if (m_completed && !wasCompleted)

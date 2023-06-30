@@ -89,6 +89,7 @@ protected:
 
 private:
     void setStatus(Status value);
+    void updateCompleted();
 
 signals:
     void statusChanged(QPrivateSignal = {});
@@ -96,6 +97,7 @@ signals:
     void errorCodeChanged(QPrivateSignal = {});
 
     void started(QPrivateSignal = {});
+    void suspended(QPrivateSignal = {});
     void rejected(QPrivateSignal = {});
     void succeeded(QPrivateSignal = {});
     void failed(QPrivateSignal = {});

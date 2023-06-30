@@ -6,19 +6,22 @@ namespace
 {
 bool IsValid(TaskQPtr task)
 {
-    if (task)
+    if (!task)
     {
-        switch (task->status())
-        {
-        case AbstractTask::Dropped:
-        case AbstractTask::Aborted:
-            return false;
-
-        default:
-            return true;
-        }
+        return false;
     }
-    return false;
+
+    switch (task->status())
+    {
+    case AbstractTask::Cancelled:
+    case AbstractTask::Dropped:
+    case AbstractTask::Aborted:
+    case AbstractTask::Failed:
+        return false;
+
+    default:
+        return true;
+    }
 };
 } // anonymous namespace
 
@@ -37,7 +40,7 @@ TaskQueue::TaskQueue(QObject* parent)
 
 TaskQueue::~TaskQueue()
 {
-    reset();
+    clear();
 }
 
 int TaskQueue::capacity() const
@@ -123,6 +126,8 @@ bool TaskQueue::suspend()
 
     foreach (auto task, m_tasks)
     {
+        Q_ASSERT(task);
+
         if (!m_sustainingIds.contains(task->id()))
         {
             task->suspend();
@@ -150,6 +155,8 @@ bool TaskQueue::resume()
 
     foreach (auto task, m_tasks)
     {
+        Q_ASSERT(task);
+
         if (m_runningIds.contains(task->id()) &&
             task->status() == AbstractTask::Suspended)
         {
@@ -167,7 +174,7 @@ bool TaskQueue::resume()
     return true;
 }
 
-void TaskQueue::reset()
+void TaskQueue::clear()
 {
     QMutexLocker lock(&m_mutex);
 
@@ -175,8 +182,7 @@ void TaskQueue::reset()
     {
         if (task)
         {
-            task->disconnect(this);
-            task->abort();
+            removeTask(task->id());
         }
     }
 
@@ -293,9 +299,6 @@ void TaskQueue::processAdded(TaskId id, ExecType execType)
             executeNextQueuedBatch();
             break;
         }
-
-        default:
-            Q_ASSERT(false);
         }
 
     }, Qt::QueuedConnection);
@@ -305,7 +308,15 @@ void TaskQueue::removeTask(TaskId id)
 {
     if (auto task = m_tasks[id])
     {
+        Q_ASSERT(task);
+
         task->disconnect(this);
+
+        if (!task->isCompleted())
+        {
+            task->abort();
+        }
+
         emit dequeued(id);
     }
 
