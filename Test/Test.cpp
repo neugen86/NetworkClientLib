@@ -1,8 +1,10 @@
 #include "Test.h"
 
 #include <QDebug>
+#include <QPointer>
+#include <QCoreApplication>
 
-#include "Network/AbstractNetworkTask.h"
+#include "TestClient.h"
 
 Test::Test(QObject* parent)
     : QObject(parent)
@@ -10,43 +12,102 @@ Test::Test(QObject* parent)
 
 void Test::run()
 {
-    for (int i = 0; i < 16; ++i)
+    m_tests =
     {
-        m_client.callMicrosoft();
-    }
+        [this](){ test_1(); },
+        [this](){ test_2(); },
+    };
 
-    NetworkTaskResult ping = m_client.pingGoogle();
-    NetworkTaskResult call = m_client.callMicrosoft();
-
-    // ping processing
+    connect(this, &Test::testFinished, this, [this]()
     {
-        connect(ping.task().data(), &AbstractTask::statusChanged, this, [ping]()
+        if (m_tests.isEmpty())
         {
-            qDebug() << ping.task()->name() << "[ping] in progress";
-        });
+            qApp->exit();
+            return;
+        }
 
-        connect(ping.task().data(), &AbstractTask::completed, this, []()
-        {
-            qDebug() << "[ping] finished";
-        });
+        qDebug() << "";
+        qDebug() << "=======================";
+        qDebug() << "= Test started ========";
 
-        ping.onResultReady([](bool result)
-        {
-            qDebug() << "[ping]" << (result ? "ok" : "failed");
-        });
-    }
+        m_tests.first()();
+        m_tests.pop_front();
 
-    // call processing
+    }, Qt::QueuedConnection);
+
+    emit testFinished();
+}
+
+TestClient* Test::makeClient()
+{
+    auto client = new TestClient(this);
+    Q_ASSERT(!client->isReady());
+
+    connect(client, &TestClient::finished,
+            this, &Test::testFinished);
+
+    return client;
+}
+
+void Test::test_1()
+{
+    auto client = makeClient();
+
+    connect(client, &TestClient::readyChanged, this, [=]()
     {
-        connect(call.task().data(), &AbstractTask::completed, this, [ping]()
-        {
-            qDebug() << "Cancelling ping task";
-            ping.task()->cancel();
-        });
+        Q_ASSERT(client->isReady());
 
-        call.onResultReady([call](const QString& data)
+        for (int i = 0; i < 8; ++i)
         {
-            qDebug() << call.task()->name() << "[call]:" << data;
-        });
-    }
+            client->sendRequest(QUrl("qt.io"));
+        }
+    });
+}
+
+void Test::test_2()
+{
+    auto client = makeClient();
+
+    connect(client, &TestClient::readyChanged, this, [=]()
+    {
+        Q_ASSERT(client->isReady());
+
+        NetworkTaskResult ping = client->pingServer(QUrl("google.com"));
+        NetworkTaskResult request = client->sendRequest(QUrl("wikipedia.org"));
+
+        // ping processing
+        {
+            connect(ping.task().data(), &AbstractTask::statusChanged, this, []()
+            {
+                qDebug() << "[ping] status changed";
+            });
+
+            connect(ping.task().data(), &AbstractTask::completed, this, []()
+            {
+                qDebug() << "[ping] finished";
+            });
+
+            ping.onResultReady([](bool result)
+            {
+                qDebug() << "[ping]" << (result ? "ok" : "failed");
+            });
+        }
+
+        // call processing
+        {
+            request.onResultReady([request](const QString& data)
+            {
+                qDebug() << request.task()->name() << "[request]:" << data;
+            });
+
+            connect(request.task().data(), &AbstractTask::completed, this, [=]()
+            {
+                if (auto task = ping.task())
+                {
+                    qDebug() << "Cancelling ping task";
+                    task->cancel();
+                }
+            });
+        }
+    });
 }

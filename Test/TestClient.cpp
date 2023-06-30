@@ -2,36 +2,55 @@
 
 #include <QDebug>
 #include <QBuffer>
-#include <QCoreApplication>
 
 TestClient::TestClient(QObject* parent)
     : QObject(parent)
 {
-    m_manager.queue().setBatchSize(3);
+    connect(&m_manager.queue(), &TaskQueue::empty,
+            this, &TestClient::finished);
 
-    connect(&m_manager.queue(), &TaskQueue::empty, this, []()
+    connect(&m_manager, &AbstractNetworkTaskManager::statusChanged,
+            this, [this]()
     {
-        qDebug() << "TaskQueue is empty";
-        qApp->exit();
+        const auto status = m_manager.status();
+
+        const bool isReady = (status == AbstractNetworkTaskManager::Ready);
+        if (isReady)
+        {
+            qDebug() << "[client] ready";
+        }
+
+        m_ready = isReady;
+        emit readyChanged();
+
+        if (status == AbstractNetworkTaskManager::Disconnected)
+        {
+            qDebug() << "[client] finished";
+            emit finished();
+        }
     });
+
+//    m_manager.queue().setBatchSize(3);
+    m_manager.start();
 }
 
-NetworkTaskResult<QString> TestClient::callMicrosoft()
+NetworkTaskResult<QString> TestClient::sendRequest(const QUrl& url)
 {
     HttpRequest request(HttpRequest::Get, new QBuffer);
-    request.request.setUrl(QUrl("microsoft.com"));
+    request.request.setUrl(url);
     request.redirectLimit = 1;
 
     request.onSuccess = [](QNetworkReply* reply, NetworkOutputDevice device)
     {
-        Q_UNUSED(reply);
-        return QString("%1 bytes from microsoft received").arg(device->size());
+        return QString("%1 bytes from %2 received")
+            .arg(device->size())
+            .arg(reply->url().toString());
     };
 
     request.onFail = [](QNetworkReply* reply)
     {
-        Q_UNUSED(reply);
-        qDebug() << "callMicrosoft failed";
+        qDebug() << QString("Request to %1 failed")
+                        .arg(reply->url().toString());
     };
 
     return m_manager.execute<QString>(
@@ -39,10 +58,10 @@ NetworkTaskResult<QString> TestClient::callMicrosoft()
     );
 }
 
-NetworkTaskResult<bool> TestClient::pingGoogle()
+NetworkTaskResult<bool> TestClient::pingServer(const QUrl& url)
 {
     HttpRequest request(HttpRequest::Get, new QBuffer);
-    request.request.setUrl(QUrl("google.com"));
+    request.request.setUrl(url);
     request.redirectLimit = 1;
 
     request.onSuccess = [](QNetworkReply* reply, NetworkOutputDevice device)
@@ -53,8 +72,8 @@ NetworkTaskResult<bool> TestClient::pingGoogle()
 
     request.onFail = [](QNetworkReply* reply)
     {
-        Q_UNUSED(reply);
-        qDebug() << "pingGoogle failed";
+        qDebug() << QString("Ping %1 failed")
+                        .arg(reply->url().toString());
     };
 
     return m_manager.repeat<bool>(

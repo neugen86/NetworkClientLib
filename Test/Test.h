@@ -1,8 +1,9 @@
 #pragma once
 
-#include <QObject>
+#include <functional>
 
-#include "TestClient.h"
+#include <QObject>
+#include <QList>
 
 class Test : public QObject
 {
@@ -14,6 +15,15 @@ public:
     void run();
 
 private:
-    TestClient m_client;
+    class TestClient* makeClient();
+
+    void test_1();
+    void test_2();
+
+signals:
+    void testFinished();
+
+private:
+    QList<std::function<void()>> m_tests;
 
 };

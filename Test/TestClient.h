@@ -11,10 +11,17 @@ class TestClient : public QObject
 public:
     explicit TestClient(QObject* parent = nullptr);
 
-    NetworkTaskResult<QString> callMicrosoft();
-    NetworkTaskResult<bool> pingGoogle();
+    NetworkTaskResult<QString> sendRequest(const QUrl& url);
+    NetworkTaskResult<bool> pingServer(const QUrl& url);
+
+    bool isReady() const { return m_ready; }
+
+signals:
+    void readyChanged();
+    void finished();
 
 private:
+    bool m_ready = false;
     HttpRequestManager m_manager;
 
 };
