@@ -153,7 +153,11 @@ void HttpRequestTask::abortExecution(int errorCode)
             c_request.onFail(m_reply);
         }
 
-        m_reply->abort();
+        if (!m_reply->isRunning())
+        {
+            m_reply->abort();
+        }
+
         m_reply = nullptr;
     }
 
