@@ -1,23 +1,23 @@
 #pragma once
 
-#include <QPointer>
 #include <QIODevice>
+#include <QSharedPointer>
 
-using OutputDevice = QPointer<QIODevice>;
+using IODevicePtr = QSharedPointer<QIODevice>;
 
 class NetworkRequest
 {
 protected:
-    explicit NetworkRequest(OutputDevice output = {});
+    explicit NetworkRequest(IODevicePtr output = {});
     virtual ~NetworkRequest();
 
 public:
-    static const int DefaultTimeout = 1000;
+    static const int DefaultTimeout = 3000;
     int timeoutMs = DefaultTimeout;
 
-    OutputDevice output() const;
+    QIODevice* output() const;
 
 private:
-    OutputDevice m_output;
+    IODevicePtr m_output;
 
 };

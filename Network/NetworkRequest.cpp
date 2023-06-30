@@ -1,18 +1,41 @@
 #include "NetworkRequest.h"
 
-NetworkRequest::NetworkRequest(OutputDevice output)
-    : m_output(output)
-{}
+#include <QBuffer>
 
-NetworkRequest::~NetworkRequest()
+namespace
 {
-    if (m_output)
+QSharedPointer<QBuffer> MakeOutput()
+{
+    QSharedPointer<QByteArray> data(
+        new QByteArray, [](QByteArray* ptr)
+        {
+            delete ptr;
+        }
+    );
+
+    return QSharedPointer<QBuffer>(
+        new QBuffer(data.data()), [data](QBuffer* buf)
+        {
+            Q_ASSERT(buf);
+            buf->deleteLater();
+        }
+    );
+}
+} // anonymous namespace
+
+
+NetworkRequest::NetworkRequest(IODevicePtr output)
+{
+    if (!output)
     {
-        m_output->close();
+        m_output = MakeOutput();
     }
 }
 
-OutputDevice NetworkRequest::output() const
+NetworkRequest::~NetworkRequest()
+{}
+
+QIODevice* NetworkRequest::output() const
 {
-    return m_output;
+    return m_output.data();
 }

@@ -36,12 +36,12 @@ public:
     >;
 
     using SuccessCallback = std::function<
-        QVariant(QNetworkReply*, OutputDevice)>;
+        QVariant(QNetworkReply*, QIODevice*)>;
 
     using FailCallback = std::function<void(QNetworkReply*)>;
 
-    explicit HttpRequest(Method method, OutputDevice output = {});
-    explicit HttpRequest(const QByteArray& method, OutputDevice output = {});
+    explicit HttpRequest(Method method, IODevicePtr output = {});
+    explicit HttpRequest(const QByteArray& method, IODevicePtr output = {});
 
     QNetworkReply* execute(QNetworkAccessManager* nam) const;
 

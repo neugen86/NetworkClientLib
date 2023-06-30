@@ -22,7 +22,6 @@ public:
         Timeout = 2000,
         RedirectLimit,
         OutputDeviceOpen,
-        OutputDeviceWrite,
     };
     Q_ENUM(ErrorCode);
 

@@ -1,7 +1,6 @@
 #include "TestClient.h"
 
 #include <QDebug>
-#include <QBuffer>
 
 TestClient::TestClient(QObject* parent)
     : QObject(parent)
@@ -36,11 +35,11 @@ TestClient::TestClient(QObject* parent)
 
 NetworkTaskResult<QString> TestClient::sendRequest(const QUrl& url)
 {
-    HttpRequest request(HttpRequest::Get, new QBuffer);
+    HttpRequest request(HttpRequest::Get);
     request.request.setUrl(url);
     request.redirectLimit = 1;
 
-    request.onSuccess = [](QNetworkReply* reply, OutputDevice device)
+    request.onSuccess = [](QNetworkReply* reply, QIODevice* device)
     {
         return QString("%1 bytes from %2 received")
             .arg(device->size())
@@ -60,11 +59,11 @@ NetworkTaskResult<QString> TestClient::sendRequest(const QUrl& url)
 
 NetworkTaskResult<bool> TestClient::pingServer(const QUrl& url)
 {
-    HttpRequest request(HttpRequest::Get, new QBuffer);
+    HttpRequest request(HttpRequest::Get);
     request.request.setUrl(url);
     request.redirectLimit = 1;
 
-    request.onSuccess = [](QNetworkReply* reply, OutputDevice device)
+    request.onSuccess = [](QNetworkReply* reply, QIODevice* device)
     {
         Q_UNUSED(reply);
         return device->size() > 0;

@@ -73,28 +73,16 @@ void HttpRequestTask::executeImpl()
 
     if (c_request.output())
     {
-        c_request.output()->close();
-
-        if (c_request.output()->open(QIODevice::WriteOnly |
-                                     QIODevice::Truncate))
+        if (c_request.output()->isOpen())
         {
-            connect(m_reply, &QNetworkReply::readyRead, this, [=]
+            c_request.output()->close();
+        }
+
+        if (c_request.output()->open(
+                QIODevice::ReadWrite | QIODevice::Truncate))
+        {
+            connect(m_reply, &QNetworkReply::readyRead, this, [=]()
             {
-                if (!c_request.output())
-                {
-                    qWarning() << name() << "Output device is null";
-                    abortExecution(OutputDeviceOpen);
-                    return;
-                }
-
-//                if (const QString error = c_request.output()->errorString();
-//                    !error.isEmpty())
-//                {
-//                    qWarning() << name() << "Output device error:" << error;
-//                    abortExecution(OutputDeviceWrite);
-//                    return;
-//                }
-
                 c_request.output()->write(m_reply->readAll());
             });
         }

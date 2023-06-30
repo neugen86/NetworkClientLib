@@ -6,13 +6,13 @@
 #include <QNetworkAccessManager>
 
 HttpRequest::HttpRequest(Method method,
-                         OutputDevice output)
+                         IODevicePtr output)
     : NetworkRequest(output)
     , c_method(method)
 {}
 
 HttpRequest::HttpRequest(const QByteArray& method,
-                         OutputDevice output)
+                         IODevicePtr output)
     : NetworkRequest(output)
     , c_method(Method::Head)
     , c_customMethod(method)
