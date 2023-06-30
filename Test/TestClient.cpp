@@ -41,6 +41,8 @@ NetworkTaskResult<QString> TestClient::sendRequest(const QUrl& url)
 
     request.onSuccess = [](QNetworkReply* reply, QIODevice* device)
     {
+        qDebug() << "=== [sendRequest] succeeded";
+
         return QString("%1 bytes from %2 received")
             .arg(device->size())
             .arg(reply->url().toString());
@@ -48,7 +50,7 @@ NetworkTaskResult<QString> TestClient::sendRequest(const QUrl& url)
 
     request.onFail = [](QNetworkReply* reply)
     {
-        qDebug() << QString("Request to %1 failed")
+        qDebug() << QString("=== [sendRequest] Request to %1 failed")
                         .arg(reply->url().toString());
     };
 
@@ -66,12 +68,14 @@ NetworkTaskResult<bool> TestClient::pingServer(const QUrl& url)
     request.onSuccess = [](QNetworkReply* reply, QIODevice* device)
     {
         Q_UNUSED(reply);
+        qDebug() << "=== [ping] succeeded";
+
         return device->size() > 0;
     };
 
     request.onFail = [](QNetworkReply* reply)
     {
-        qDebug() << QString("Ping %1 failed")
+        qDebug() << QString("=== [ping] Ping %1 failed")
                         .arg(reply->url().toString());
     };
 

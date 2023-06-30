@@ -102,9 +102,11 @@ void Test::test_2()
 
             connect(request.task().data(), &Task::completed, this, [=]()
             {
+                qDebug() << "=== The last request completed";
+
                 if (auto task = ping.task())
                 {
-                    qDebug() << "Cancelling ping task";
+                    qDebug() << "=== Cancelling ping task";
                     task->cancel();
                 }
             });
