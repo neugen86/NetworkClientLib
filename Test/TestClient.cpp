@@ -9,12 +9,12 @@ TestClient::TestClient(QObject* parent)
     connect(&m_manager.queue(), &TaskQueue::empty,
             this, &TestClient::finished);
 
-    connect(&m_manager, &AbstractNetworkTaskManager::statusChanged,
+    connect(&m_manager, &NetworkTaskManager::statusChanged,
             this, [this]()
     {
         const auto status = m_manager.status();
 
-        const bool isReady = (status == AbstractNetworkTaskManager::Ready);
+        const bool isReady = (status == NetworkTaskManager::Ready);
         if (isReady)
         {
             qDebug() << "[client] ready";
@@ -23,7 +23,7 @@ TestClient::TestClient(QObject* parent)
         m_ready = isReady;
         emit readyChanged();
 
-        if (status == AbstractNetworkTaskManager::Disconnected)
+        if (status == NetworkTaskManager::Disconnected)
         {
             qDebug() << "[client] finished";
             emit finished();
@@ -40,7 +40,7 @@ NetworkTaskResult<QString> TestClient::sendRequest(const QUrl& url)
     request.request.setUrl(url);
     request.redirectLimit = 1;
 
-    request.onSuccess = [](QNetworkReply* reply, NetworkOutputDevice device)
+    request.onSuccess = [](QNetworkReply* reply, OutputDevice device)
     {
         return QString("%1 bytes from %2 received")
             .arg(device->size())
@@ -64,7 +64,7 @@ NetworkTaskResult<bool> TestClient::pingServer(const QUrl& url)
     request.request.setUrl(url);
     request.redirectLimit = 1;
 
-    request.onSuccess = [](QNetworkReply* reply, NetworkOutputDevice device)
+    request.onSuccess = [](QNetworkReply* reply, OutputDevice device)
     {
         Q_UNUSED(reply);
         return device->size() > 0;

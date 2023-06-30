@@ -7,7 +7,7 @@
 HttpRequestTask::HttpRequestTask(const HttpRequest& request,
                                  QNetworkAccessManager* nam,
                                  QObject* parent)
-    : AbstractNetworkTask(parent)
+    : NetworkTask(parent)
     , c_request(request)
     , m_nam(nam)
 {}

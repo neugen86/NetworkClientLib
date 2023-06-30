@@ -6,7 +6,7 @@
 #include <QPointer>
 
 #include "NetworkDefines.h"
-#include "AbstractNetworkTask.h"
+#include "NetworkTask.h"
 
 template <typename T = QVariant>
 class NetworkTaskResult
@@ -42,7 +42,7 @@ public:
         }
 
         QPointer ctx(new QObject);
-        ctx->connect(task.data(), &AbstractTask::resultChanged, [=]
+        ctx->connect(task.data(), &Task::resultChanged, [=]
         {
             if (ctx)
             {

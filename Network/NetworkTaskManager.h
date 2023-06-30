@@ -8,15 +8,15 @@
 
 class TaskStorage;
 
-class AbstractNetworkTaskManager : public QObject
+class NetworkTaskManager : public QObject
 {
     Q_OBJECT
 
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
 
 protected:
-    explicit AbstractNetworkTaskManager(QObject* parent = nullptr);
-    ~AbstractNetworkTaskManager();
+    explicit NetworkTaskManager(QObject* parent = nullptr);
+    ~NetworkTaskManager();
 
 public:
     enum Status

@@ -2,7 +2,6 @@
 
 #include <QSharedPointer>
 
-class AbstractNetworkTask;
-
-using NetworkTaskPtr = QSharedPointer<AbstractNetworkTask>;
-using NetworkTaskRef = QWeakPointer<AbstractNetworkTask>;
+class NetworkTask;
+using NetworkTaskPtr = QSharedPointer<NetworkTask>;
+using NetworkTaskRef = QWeakPointer<NetworkTask>;

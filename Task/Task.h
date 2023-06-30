@@ -6,16 +6,16 @@
 
 #include "TaskDefines.h"
 
-class AbstractTaskHandler
+class TaskHandler
 {
 protected:
-    explicit AbstractTaskHandler(AbstractTask& task)
+    explicit TaskHandler(Task& task)
         : m_task(task)
     {}
-    virtual ~AbstractTaskHandler() = default;
+    virtual ~TaskHandler() = default;
 
 public:
-    const AbstractTask& task() const;
+    const Task& task() const;
 
     void execute();
     void suspend();
@@ -29,17 +29,17 @@ private:
     virtual void dropImpl() {};
 
 private:
-    AbstractTask& m_task;
+    Task& m_task;
 
 };
 
-class AbstractTask : public QObject
-                   , public AbstractTaskHandler
+class Task : public QObject
+           , public TaskHandler
 {
     Q_OBJECT
 
     friend class TaskQueue;
-    friend class AbstractTaskHandler;
+    friend class TaskHandler;
 
     Q_PROPERTY(TaskId id READ id CONSTANT)
     Q_PROPERTY(QString name READ name CONSTANT)
@@ -49,8 +49,8 @@ class AbstractTask : public QObject
     Q_PROPERTY(bool completed READ isCompleted NOTIFY completed)
 
 protected:
-    explicit AbstractTask(QObject* parent = nullptr);
-    ~AbstractTask();
+    explicit Task(QObject* parent = nullptr);
+    ~Task();
 
 public:
     enum Status

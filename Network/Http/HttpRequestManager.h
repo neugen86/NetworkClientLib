@@ -6,13 +6,13 @@
 #include <QNetworkProxy>
 
 #include "HttpRequest.h"
-#include "Network/AbstractNetworkTaskManager.h"
+#include "Network/NetworkTaskManager.h"
 #include "Network/NetworkTaskResult.h"
 
 class NetworkTaskQueue;
 class QNetworkAccessManager;
 
-class HttpRequestManager : public AbstractNetworkTaskManager
+class HttpRequestManager : public NetworkTaskManager
 {
     Q_OBJECT
 
@@ -27,7 +27,7 @@ public:
                                  TaskQueue::ExecType execType)
     {
         return NetworkTaskResult<T>(
-            AbstractNetworkTaskManager::execute(
+            NetworkTaskManager::execute(
                 makeTask(request), execType
             )
         );
@@ -40,7 +40,7 @@ public:
                                   = TaskQueue::SuspendType::Suspend)
     {
         return NetworkTaskResult<T>(
-            AbstractNetworkTaskManager::repeat(
+            NetworkTaskManager::repeat(
                 makeTask(request), execType, suspendType
             )
         );

@@ -1,4 +1,4 @@
-#include "AbstractTask.h"
+#include "Task.h"
 
 #include <QDebug>
 
@@ -12,78 +12,78 @@ TaskId MakeTaskId()
 } // anonymous namespace
 
 
-void AbstractTaskHandler::execute()
+void TaskHandler::execute()
 {
-    m_task.setStatus(AbstractTask::Running);
+    m_task.setStatus(Task::Running);
     executeImpl();
 }
 
-void AbstractTaskHandler::suspend()
+void TaskHandler::suspend()
 {
-    m_task.setStatus(AbstractTask::Suspended);
+    m_task.setStatus(Task::Suspended);
     suspendImpl();
 }
 
-void AbstractTaskHandler::abort()
+void TaskHandler::abort()
 {
-    m_task.setStatus(AbstractTask::Aborted);
+    m_task.setStatus(Task::Aborted);
     abortImpl();
 }
 
-void AbstractTaskHandler::drop()
+void TaskHandler::drop()
 {
-    m_task.setStatus(AbstractTask::Dropped);
+    m_task.setStatus(Task::Dropped);
     dropImpl();
 }
 
 
-AbstractTask::AbstractTask(QObject* parent)
+Task::Task(QObject* parent)
     : QObject(parent)
-    , AbstractTaskHandler(*this)
+    , TaskHandler(*this)
     , c_id(MakeTaskId())
 {}
 
-AbstractTask::~AbstractTask()
+Task::~Task()
 {
     qInfo() << name() << "destroyed";
 }
 
-TaskId AbstractTask::id() const
+TaskId Task::id() const
 {
     return c_id;
 }
 
-QString AbstractTask::name() const
+QString Task::name() const
 {
     return QString("[Task_%1]").arg(c_id);
 }
 
-AbstractTask::Status AbstractTask::status() const
+Task::Status Task::status() const
 {
     return m_status;
 }
 
-QVariant AbstractTask::result() const
+QVariant Task::result() const
 {
     return m_result;
 }
 
-int AbstractTask::errorCode() const
+int Task::errorCode() const
 {
     return m_errorCode;
 }
 
-bool AbstractTask::isCompleted() const
+bool Task::isCompleted() const
 {
     return m_completed;
 }
 
-void AbstractTask::cancel()
+void Task::cancel()
 {
     setStatus(Cancelled);
 }
 
-void AbstractTask::setResult(const QVariant& result)
+void Task::setResult(const QVariant& result)
 {
     setStatus(Succeeded);
 
@@ -93,7 +93,7 @@ void AbstractTask::setResult(const QVariant& result)
     emit resultChanged();
 }
 
-void AbstractTask::setFailed(int errorCode)
+void Task::setFailed(int errorCode)
 {
     setStatus(Failed);
 
@@ -101,7 +101,7 @@ void AbstractTask::setFailed(int errorCode)
     emit errorCodeChanged();
 }
 
-void AbstractTask::setStatus(Status value)
+void Task::setStatus(Status value)
 {
     if (m_status == value)
     {
@@ -114,12 +114,12 @@ void AbstractTask::setStatus(Status value)
     emit statusChanged();
 
     QMetaObject::invokeMethod(
-        this, &AbstractTask::updateCompleted,
+        this, &Task::updateCompleted,
         Qt::QueuedConnection
     );
 }
 
-void AbstractTask::updateCompleted()
+void Task::updateCompleted()
 {
     const bool wasCompleted = m_completed;
 

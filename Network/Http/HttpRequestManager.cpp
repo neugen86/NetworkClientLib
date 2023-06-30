@@ -5,7 +5,7 @@
 #include "HttpRequestTask.h"
 
 HttpRequestManager::HttpRequestManager(QObject* parent)
-    : AbstractNetworkTaskManager(parent)
+    : NetworkTaskManager(parent)
     , m_nam(new QNetworkAccessManager(this))
 {
     Q_ASSERT(m_nam);
@@ -26,5 +26,5 @@ NetworkTaskPtr HttpRequestManager::makeTask(const HttpRequest& request)
     return QSharedPointer<HttpRequestTask>(
         new HttpRequestTask(request, m_nam.data(), this),
         &QObject::deleteLater
-    ).staticCast<AbstractNetworkTask>();
+    ).staticCast<NetworkTask>();
 }

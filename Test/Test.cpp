@@ -77,12 +77,12 @@ void Test::test_2()
 
         // ping processing
         {
-            connect(ping.task().data(), &AbstractTask::statusChanged, this, []()
+            connect(ping.task().data(), &Task::statusChanged, this, []()
             {
                 qDebug() << "[ping] status changed";
             });
 
-            connect(ping.task().data(), &AbstractTask::completed, this, []()
+            connect(ping.task().data(), &Task::completed, this, []()
             {
                 qDebug() << "[ping] finished";
             });
@@ -100,7 +100,7 @@ void Test::test_2()
                 qDebug() << request.task()->name() << "[request]:" << data;
             });
 
-            connect(request.task().data(), &AbstractTask::completed, this, [=]()
+            connect(request.task().data(), &Task::completed, this, [=]()
             {
                 if (auto task = ping.task())
                 {

@@ -1,6 +1,6 @@
 #include "TaskQueue.h"
 
-#include "AbstractTask.h"
+#include "Task.h"
 
 namespace
 {
@@ -13,10 +13,10 @@ bool IsValid(TaskQPtr task)
 
     switch (task->status())
     {
-    case AbstractTask::Cancelled:
-    case AbstractTask::Dropped:
-    case AbstractTask::Aborted:
-    case AbstractTask::Failed:
+    case Task::Cancelled:
+    case Task::Dropped:
+    case Task::Aborted:
+    case Task::Failed:
         return false;
 
     default:
@@ -158,7 +158,7 @@ bool TaskQueue::resume()
         Q_ASSERT(task);
 
         if (m_runningIds.contains(task->id()) &&
-            task->status() == AbstractTask::Suspended)
+            task->status() == Task::Suspended)
         {
             executeTask(task);
         }
@@ -198,7 +198,7 @@ void TaskQueue::clear()
 }
 
 
-bool TaskQueue::execute(AbstractTask* task, ExecType execType)
+bool TaskQueue::execute(Task* task, ExecType execType)
 {
     if (add(task))
     {
@@ -208,7 +208,7 @@ bool TaskQueue::execute(AbstractTask* task, ExecType execType)
     return false;
 }
 
-bool TaskQueue::repeat(AbstractTask* task,
+bool TaskQueue::repeat(Task* task,
                        ExecType execType,
                        SuspendType suspedType)
 {
@@ -233,7 +233,7 @@ bool TaskQueue::repeat(AbstractTask* task,
     return true;
 }
 
-bool TaskQueue::add(AbstractTask* task)
+bool TaskQueue::add(Task* task)
 {
     QMutexLocker lock(&m_mutex);
 
@@ -252,13 +252,13 @@ bool TaskQueue::add(AbstractTask* task)
         return false;
     }
 
-    connect(task, &AbstractTask::completed, this, [=]()
+    connect(task, &Task::completed, this, [=]()
     {
         TaskQueue::OnTaskCompleted(task->id());
     });
 
     m_tasks.insert(task->id(), task);
-    task->setStatus(AbstractTask::Queued);
+    task->setStatus(Task::Queued);
 
     if (isSuspended())
     {

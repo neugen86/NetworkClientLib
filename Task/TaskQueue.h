@@ -8,7 +8,7 @@
 
 #include "TaskDefines.h"
 
-using TaskQPtr = QPointer<AbstractTask>;
+using TaskQPtr = QPointer<Task>;
 
 class TaskQueue : public QObject
 {
@@ -54,10 +54,10 @@ public:
     bool isEmpty() const;
 
     Q_INVOKABLE bool execute(
-        AbstractTask* task, ExecType execType);
+        Task* task, ExecType execType);
 
     Q_INVOKABLE bool repeat(
-        AbstractTask* task, ExecType execType,
+        Task* task, ExecType execType,
         SuspendType suspedType = SuspendType::Sustain);
 
     Q_INVOKABLE bool suspend();
@@ -65,7 +65,7 @@ public:
     Q_INVOKABLE void clear();
 
 private:
-    bool add(AbstractTask* task);
+    bool add(Task* task);
     void processAdded(TaskId id, ExecType execType);
     void removeTask(TaskId id);
     void removeInvalidTasks();

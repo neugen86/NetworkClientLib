@@ -1,9 +1,9 @@
-#include "AbstractNetworkTaskManager.h"
+#include "NetworkTaskManager.h"
 
 #include "Task/TaskStorage.h"
-#include "AbstractNetworkTask.h"
+#include "NetworkTask.h"
 
-AbstractNetworkTaskManager::AbstractNetworkTaskManager(QObject* parent)
+NetworkTaskManager::NetworkTaskManager(QObject* parent)
     : QObject(parent)
     , m_queue(new TaskQueue(this))
     , m_storage(new TaskStorage)
@@ -18,12 +18,12 @@ AbstractNetworkTaskManager::AbstractNetworkTaskManager(QObject* parent)
     });
 }
 
-AbstractNetworkTaskManager::~AbstractNetworkTaskManager()
+NetworkTaskManager::~NetworkTaskManager()
 {
     stop();
 }
 
-bool AbstractNetworkTaskManager::start()
+bool NetworkTaskManager::start()
 {
     m_status = Connecting;
 
@@ -37,7 +37,7 @@ bool AbstractNetworkTaskManager::start()
     return true;
 }
 
-void AbstractNetworkTaskManager::stop()
+void NetworkTaskManager::stop()
 {
     m_queue->clear();
     m_storage->clear();
@@ -46,18 +46,17 @@ void AbstractNetworkTaskManager::stop()
     emit statusChanged();
 }
 
-AbstractNetworkTaskManager::Status
-AbstractNetworkTaskManager::status() const
+NetworkTaskManager::Status NetworkTaskManager::status() const
 {
     return m_status;
 }
 
-TaskQueue& AbstractNetworkTaskManager::queue() const
+TaskQueue& NetworkTaskManager::queue() const
 {
     return *m_queue.data();
 }
 
-NetworkTaskRef AbstractNetworkTaskManager::execute(
+NetworkTaskRef NetworkTaskManager::execute(
         const NetworkTaskPtr& task,
         TaskQueue::ExecType execType)
 {
@@ -69,7 +68,7 @@ NetworkTaskRef AbstractNetworkTaskManager::execute(
     return task.toWeakRef();
 }
 
-NetworkTaskRef AbstractNetworkTaskManager::repeat(
+NetworkTaskRef NetworkTaskManager::repeat(
         const NetworkTaskPtr& task,
         TaskQueue::ExecType execType,
         TaskQueue::SuspendType suspendType)

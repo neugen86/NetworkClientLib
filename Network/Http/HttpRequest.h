@@ -10,13 +10,13 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
-#include "Network/AbstractNetworkRequest.h"
+#include "Network/NetworkRequest.h"
 
 class QIODevice;
 class QHttpMultiPart;
 class QNetworkAccessManager;
 
-class HttpRequest : public AbstractNetworkRequest
+class HttpRequest : public NetworkRequest
 {
 public:
     enum Method
@@ -36,12 +36,12 @@ public:
     >;
 
     using SuccessCallback = std::function<
-        QVariant(QNetworkReply*, NetworkOutputDevice)>;
+        QVariant(QNetworkReply*, OutputDevice)>;
 
     using FailCallback = std::function<void(QNetworkReply*)>;
 
-    explicit HttpRequest(Method method, NetworkOutputDevice output = {});
-    explicit HttpRequest(const QByteArray& method, NetworkOutputDevice output = {});
+    explicit HttpRequest(Method method, OutputDevice output = {});
+    explicit HttpRequest(const QByteArray& method, OutputDevice output = {});
 
     QNetworkReply* execute(QNetworkAccessManager* nam) const;
 
