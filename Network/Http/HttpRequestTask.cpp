@@ -1,6 +1,7 @@
 #include "HttpRequestTask.h"
 
 #include <QDebug>
+#include <QTimer>
 #include <QNetworkAccessManager>
 
 HttpRequestTask::HttpRequestTask(const HttpRequest& request,
@@ -18,6 +19,11 @@ void HttpRequestTask::executeImpl()
 
     m_redirectCount = 0;
     m_reply = c_request.execute(m_nam);
+
+    QTimer::singleShot(c_request.timeoutMs, m_reply, [this]()
+    {
+        abortExecution(Timeout);
+    });
 
     connect(m_reply, &QNetworkReply::sslErrors,
             this, [=](const QList<QSslError>& errors)
@@ -69,7 +75,7 @@ void HttpRequestTask::executeImpl()
     {
         c_request.output()->close();
 
-        if (c_request.output()->open(QIODevice::ReadWrite |
+        if (c_request.output()->open(QIODevice::WriteOnly |
                                      QIODevice::Truncate))
         {
             connect(m_reply, &QNetworkReply::readyRead, this, [=]
@@ -77,7 +83,7 @@ void HttpRequestTask::executeImpl()
                 if (!c_request.output())
                 {
                     qWarning() << name() << "Output device is null";
-                    abortExecution(OutputDeviceOpenError);
+                    abortExecution(OutputDeviceOpen);
                     return;
                 }
 
@@ -85,7 +91,7 @@ void HttpRequestTask::executeImpl()
 //                    !error.isEmpty())
 //                {
 //                    qWarning() << name() << "Output device error:" << error;
-//                    abortExecution(OutputDeviceWriteError);
+//                    abortExecution(OutputDeviceWrite);
 //                    return;
 //                }
 
@@ -95,7 +101,7 @@ void HttpRequestTask::executeImpl()
         else
         {
             qWarning() << name() << "Can't open output device";
-            abortExecution(OutputDeviceOpenError);
+            abortExecution(OutputDeviceOpen);
         }
     }
 
