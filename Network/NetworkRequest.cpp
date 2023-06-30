@@ -7,17 +7,16 @@ namespace
 QSharedPointer<QBuffer> MakeOutput()
 {
     QSharedPointer<QByteArray> data(
-        new QByteArray, [](QByteArray* ptr)
+        new QByteArray, [](auto ptr)
         {
             delete ptr;
         }
     );
 
     return QSharedPointer<QBuffer>(
-        new QBuffer(data.data()), [data](QBuffer* buf)
+        new QBuffer(data.data()), [data](auto ptr)
         {
-            Q_ASSERT(buf);
-            buf->deleteLater();
+            ptr->deleteLater();
         }
     );
 }
