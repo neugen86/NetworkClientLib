@@ -35,7 +35,7 @@ protected:
     void setDataDirection(DataDirection value);
 
 private:
-    virtual void abortExecution(int errorCode) = 0;
+    virtual void abortExecution(int code, const QString& message) = 0;
 
 signals:
     void dataDirectionChanged(QPrivateSignal = {});

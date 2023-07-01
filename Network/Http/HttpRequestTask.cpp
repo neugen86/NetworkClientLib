@@ -22,7 +22,8 @@ void HttpRequestTask::executeImpl()
 
     QTimer::singleShot(c_request.timeoutMs, m_reply, [this]()
     {
-        abortExecution(Timeout);
+        abortExecution(Timeout, QString("Timeout %1ms exceeded")
+                                    .arg(c_request.timeoutMs));
     });
 
     connect(m_reply, &QNetworkReply::sslErrors,
@@ -33,27 +34,25 @@ void HttpRequestTask::executeImpl()
     });
 
     connect(m_reply, &QNetworkReply::errorOccurred,
-            this, [=](QNetworkReply::NetworkError error)
+            this, [=](QNetworkReply::NetworkError code)
     {
-        abortExecution(error);
+        abortExecution(code, QString("Network error: %1")
+                                 .arg(m_reply->errorString()));
     });
 
     connect(m_reply, &QNetworkReply::redirected, this, [=](const QUrl& url)
     {
-        qInfo() << name() << "Trying to redirect to" << url.toString();
+        qInfo() << name() << "Redirecting to" << url.toString();
 
         if (c_request.redirectLimit < 0 ||
             m_redirectCount++ < c_request.redirectLimit)
         {
-            qInfo() << name() << "Redirect to" << url.toString() << "allowed";
-
             emit m_reply->redirectAllowed();
         }
         else
         {
-            qWarning() << name() << "Redirections limit exceeded:"
-                       << c_request.redirectLimit;
-            abortExecution(RedirectLimit);
+            abortExecution(RedirectLimit, QString("Redirections limit exceeded: %1")
+                                              .arg(c_request.redirectLimit));
         }
     });
 
@@ -88,8 +87,8 @@ void HttpRequestTask::executeImpl()
         }
         else
         {
-            qWarning() << name() << "Can't open output device";
-            abortExecution(OutputDeviceOpen);
+            abortExecution(
+                OutputDeviceOpen, QLatin1String("Can't open output device"));
         }
     }
 
@@ -97,16 +96,13 @@ void HttpRequestTask::executeImpl()
     {
         disconnectReply();
 
-        const int errorCode = m_reply->error();
+        const int code = m_reply->error();
 
-        const int statusCode = m_reply->attribute(
+        const int status = m_reply->attribute(
             QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-        qInfo() << name() << "Execution finished," <<
-            "status:" << statusCode << "error:" << errorCode;
-
-        if (errorCode == QNetworkReply::NoError &&
-            c_request.acceptCodes.contains(statusCode))
+        if (code == QNetworkReply::NoError &&
+            c_request.acceptCodes.contains(status))
         {
             QVariant result;
             if (c_request.onSuccess)
@@ -120,22 +116,16 @@ void HttpRequestTask::executeImpl()
             return;
         }
 
-        abortExecution(errorCode);
+        abortExecution(code, m_reply->errorString());
     });
 }
 
-void HttpRequestTask::abortExecution(int errorCode)
+void HttpRequestTask::abortExecution(int code, const QString& message)
 {
     disconnectReply();
 
     if (m_reply)
     {
-        if (const int replyError = m_reply->error();
-            replyError != QNetworkReply::NoError)
-        {
-            errorCode = replyError;
-        }
-
         if (c_request.onFail)
         {
             c_request.onFail(m_reply);
@@ -149,11 +139,10 @@ void HttpRequestTask::abortExecution(int errorCode)
         m_reply = nullptr;
     }
 
-    qInfo() << name() << "Execution aborted, error:" << errorCode;
-
-    setFailed(errorCode);
+    setFailed(code, message.isEmpty()
+                        ? QLatin1String("Execution aborted")
+                        : message);
 }
-
 
 void HttpRequestTask::disconnectReply()
 {

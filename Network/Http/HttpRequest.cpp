@@ -1,7 +1,5 @@
 #include "HttpRequest.h"
 
-#include <QDebug>
-
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
 
@@ -71,4 +69,3 @@ QNetworkReply* HttpRequest::execute(QNetworkAccessManager* nam) const
 
     return reply;
 }
-

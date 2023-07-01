@@ -59,7 +59,6 @@ void Test::makeTest(Callback callback)
     });
 }
 
-
 void Test::test_1(TestClient* client)
 {
     for (int i = 0; i < 8; ++i)

@@ -70,14 +70,19 @@ QVariant Task::result() const
     return m_result;
 }
 
+bool Task::isCompleted() const
+{
+    return m_completed;
+}
+
 int Task::errorCode() const
 {
     return m_errorCode;
 }
 
-bool Task::isCompleted() const
+const QString& Task::message() const
 {
-    return m_completed;
+    return m_message;
 }
 
 void Task::cancel()
@@ -88,19 +93,20 @@ void Task::cancel()
 void Task::setResult(const QVariant& result)
 {
     setStatus(Succeeded);
-
     qInfo() << name() << "result:" << result;
 
     m_result = result;
     emit resultChanged();
+
+    setStatus(Succeeded);
 }
 
-void Task::setFailed(int errorCode)
+void Task::setFailed(int code, const QString& message)
 {
-    setStatus(Failed);
+    m_errorCode = code;
+    m_message = message;
 
-    m_errorCode = errorCode;
-    emit errorCodeChanged();
+    setStatus(Failed);
 }
 
 void Task::setStatus(Status value)
@@ -110,7 +116,7 @@ void Task::setStatus(Status value)
         return;
     }
 
-    qInfo() << name() << "status" << value;
+    qInfo() << name() << "status:" << value;
 
     m_status = value;
     emit statusChanged();
@@ -132,7 +138,6 @@ void Task::updateCompleted()
     case Running:
     case Suspended:
         m_completed = false;
-        m_errorCode = NoError;
 
         switch (m_status)
         {
@@ -158,6 +163,7 @@ void Task::updateCompleted()
     case Succeeded:
         emit succeeded();
         m_completed = true;
+        m_message = QLatin1String("Ok");
         break;
 
     case Failed:
@@ -168,6 +174,17 @@ void Task::updateCompleted()
 
     if (m_completed && !wasCompleted)
     {
+        qInfo() << name() << "completed,"
+                << "status:" << m_status
+                << "message:" << m_message
+                << "code:" << m_errorCode;
+
+        if (!m_completed)
+        {
+            m_errorCode = NoError;
+            m_message.clear();
+        }
+
         emit completed();
     }
 }

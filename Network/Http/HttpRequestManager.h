@@ -1,8 +1,6 @@
 #pragma once
 
 #include <QObject>
-#include <QPointer>
-
 #include <QNetworkProxy>
 
 #include "HttpRequest.h"

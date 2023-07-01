@@ -7,8 +7,8 @@
 #include <QVariant>
 #include <QPointer>
 #include <QByteArray>
-#include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QNetworkRequest>
 
 #include "Network/NetworkRequest.h"
 

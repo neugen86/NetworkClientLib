@@ -29,7 +29,7 @@ private: // TaskHandler
     void executeImpl() override;
 
 private: // NetworkTask
-    void abortExecution(int errorCode) override;
+    void abortExecution(int code, const QString& message) override;
 
 private:
     void disconnectReply();

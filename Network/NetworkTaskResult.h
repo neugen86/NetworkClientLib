@@ -18,7 +18,10 @@ public:
         : m_ref(ref)
     {}
 
-    NetworkTaskPtr task() const { return m_ref.lock(); }
+    NetworkTaskPtr task() const
+    {
+        return m_ref.lock();
+    }
 
     void onResultReady(std::function<void(const T&)> callback)
     {

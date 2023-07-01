@@ -10,7 +10,7 @@ NetworkTask::NetworkTask(QObject* parent)
 
     connect(this, &Task::rejected, this, [=]()
     {
-        abortExecution(RejectedError);
+        abortExecution(RejectedError, QLatin1String("Rejected"));
     });
 }
 
