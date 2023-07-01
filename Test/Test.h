@@ -5,6 +5,8 @@
 #include <QObject>
 #include <QList>
 
+class TestClient;
+
 class Test : public QObject
 {
     Q_OBJECT
@@ -15,10 +17,14 @@ public:
     void run();
 
 private:
-    class TestClient* makeClient();
+    using Callback = std::function
+    <
+        void(Test*, TestClient*)
+    >;
 
-    void test_1();
-    void test_2();
+    void makeTest(Callback callback);
+    void test_1(TestClient* client);
+    void test_2(TestClient* client);
 
 signals:
     void testFinished();

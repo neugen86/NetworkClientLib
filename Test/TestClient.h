@@ -14,11 +14,12 @@ public:
     NetworkTaskResult<QString> sendRequest(const QUrl& url);
     NetworkTaskResult<bool> pingServer(const QUrl& url);
 
-    bool isReady() const { return m_ready; }
+    bool isReady() const;
+    bool isExecuting() const;
 
 signals:
-    void readyChanged();
-    void finished();
+    void readyChanged(bool value);
+    void executionFinished();
 
 private:
     bool m_ready = false;

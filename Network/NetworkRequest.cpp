@@ -6,17 +6,13 @@ namespace
 {
 QSharedPointer<QBuffer> MakeOutput()
 {
-    QSharedPointer<QByteArray> data(
-        new QByteArray, [](auto ptr)
-        {
-            delete ptr;
-        }
-    );
+    auto data = new QByteArray;
 
     return QSharedPointer<QBuffer>(
-        new QBuffer(data.data()), [data](auto ptr)
+        new QBuffer(data), [data](auto ptr)
         {
             ptr->deleteLater();
+            delete data;
         }
     );
 }
@@ -24,12 +20,8 @@ QSharedPointer<QBuffer> MakeOutput()
 
 
 NetworkRequest::NetworkRequest(IODevicePtr output)
-{
-    if (!output)
-    {
-        m_output = MakeOutput();
-    }
-}
+    : m_output(output ? output : MakeOutput())
+{}
 
 QIODevice* NetworkRequest::output() const
 {

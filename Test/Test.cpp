@@ -14,8 +14,8 @@ void Test::run()
 {
     m_tests =
     {
-        [this](){ test_1(); },
-        [this](){ test_2(); },
+        [this](){ makeTest(&Test::test_1); },
+        [this](){ makeTest(&Test::test_2); },
     };
 
     connect(this, &Test::testFinished, this, [this]()
@@ -38,78 +38,75 @@ void Test::run()
     emit testFinished();
 }
 
-TestClient* Test::makeClient()
+void Test::makeTest(Callback callback)
 {
     auto client = new TestClient(this);
     Q_ASSERT(!client->isReady());
 
-    connect(client, &TestClient::finished,
-            this, &Test::testFinished);
-
-    return client;
-}
-
-void Test::test_1()
-{
-    auto client = makeClient();
-
     connect(client, &TestClient::readyChanged, this, [=]()
     {
-        Q_ASSERT(client->isReady());
+        Q_ASSERT(!client->isExecuting());
+        callback(this, client);
+        Q_ASSERT(client->isExecuting());
+    });
 
-        for (int i = 0; i < 8; ++i)
-        {
-            client->sendRequest(QUrl("qt.io"));
-        }
+    connect(client, &TestClient::executionFinished, this, [=]()
+    {
+        client->disconnect(this);
+        client->deleteLater();
+
+        emit testFinished();
     });
 }
 
-void Test::test_2()
+
+void Test::test_1(TestClient* client)
 {
-    auto client = makeClient();
-
-    connect(client, &TestClient::readyChanged, this, [=]()
+    for (int i = 0; i < 8; ++i)
     {
-        Q_ASSERT(client->isReady());
+        client->sendRequest(QUrl("qt.io"));
+    }
+}
 
-        NetworkTaskResult ping = client->pingServer(QUrl("google.com"));
-        NetworkTaskResult request = client->sendRequest(QUrl("wikipedia.org"));
+void Test::test_2(TestClient* client)
+{
+    NetworkTaskResult ping = client->pingServer(QUrl("google.com"));
+    NetworkTaskResult request = client->sendRequest(QUrl("wikipedia.org"));
 
-        // ping processing
+    // ping processing
+    {
+        connect(ping.task().data(), &Task::statusChanged, this, []()
         {
-            connect(ping.task().data(), &Task::statusChanged, this, []()
-            {
-                qDebug() << "[ping] status changed";
-            });
+            qDebug() << "[ping] status changed";
+        });
 
-            connect(ping.task().data(), &Task::completed, this, []()
-            {
-                qDebug() << "[ping] finished";
-            });
-
-            ping.onResultReady([](bool result)
-            {
-                qDebug() << "[ping]" << (result ? "ok" : "failed");
-            });
-        }
-
-        // request processing
+        connect(ping.task().data(), &Task::completed, this, []()
         {
-            request.onResultReady([request](const QString& data)
-            {
-                qDebug() << request.task()->name() << "[request]:" << data;
-            });
+            qDebug() << "[ping] finished";
+        });
 
-            connect(request.task().data(), &Task::completed, this, [=]()
-            {
-                qDebug() << "=== The last request completed";
+        ping.onResultReady([](bool result)
+        {
+            qDebug() << "[ping]" << (result ? "ok" : "failed");
+        });
+    }
 
-                if (auto task = ping.task())
-                {
-                    qDebug() << "=== Cancelling ping task";
-                    task->cancel();
-                }
-            });
-        }
-    });
+    // request processing
+    {
+        request.onResultReady([request](const QString& data)
+        {
+            qDebug() << request.task()->name() << "[request]:" << data;
+        });
+
+        connect(request.task().data(), &Task::completed, this, [=]()
+        {
+            qDebug() << "=== The last request completed";
+
+            if (auto task = ping.task())
+            {
+                qDebug() << "=== Cancelling ping task";
+                task->cancel();
+            }
+        });
+    }
 }
