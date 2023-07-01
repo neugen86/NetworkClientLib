@@ -41,11 +41,13 @@ Task::Task(QObject* parent)
     : QObject(parent)
     , TaskHandler(*this)
     , c_id(MakeTaskId())
-{}
+{
+    qInfo() << name() << status();
+}
 
 Task::~Task()
 {
-    qInfo() << name() << "destroyed";
+    qInfo() << name() << "destroyed" << status();
 }
 
 TaskId Task::id() const
